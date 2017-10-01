@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>SamurAI Jockey Course Editor</title>
+    <script src="editor.js"></script>
+  </head>
+  <body onresize="windowResized()">
+    <button onclick="newCourse(event)">New</button>
+    <button onclick="document.getElementById('fileInput').click();"
+	    value="/home/takashi/Downloads/sample.json">Load</button>
+    <input type="file" style="display:none" id="fileInput"
+	   onchange="loadFile(event)">
+    <button onclick="saveFile(event)">Save</button>
+    <button onclick="writeFile(event)">Write</button>
+    <button onclick="editCourse(event)">Edit</button>
+    <button onclick="resizeCourse(event)">Resize</button>
+    <button onclick="location.href='help.html'">Help</button>
+    <div style="display:none;margin-top:5px" id="saveFileForm" style="margin-top:5px">
+      File name:
+      <input type="text" value="course.json" id="saveFileName">
+      <button onclick="doSaveFile(event)">Save</button>
+      <button onclick="document.getElementById('saveFileForm').style.display='none'">
+	Dismiss</button>
+    </div>
+    <div style="display:none;margin-top:5px" id="writeFileForm" style="margin-top:5px">
+      File name:
+      <input type="text" value="course.smrjky" id="writeFileName">
+      <button onclick="doWriteFile(event)">Write</button>
+      <button onclick="document.getElementById('writeFileForm').style.display='none'">
+	Dismiss</button>
+    </div>
+    <div style="display:none;margin-top:5px" id="sizeInputForm">
+      Width: <input id="courseWidth" type="number" min="10" max="100" value="15">
+      Length: <input id="courseLength" type="number" min="10" max="1000" value="30">
+      Vision: <input id="vision" type="number" min="5" max="1000" value="10">
+      Time Limit: <input id="thinkTime" type="number" min="100"
+			 max="100000" value="2000">
+      Step Limit: <input id="stepLimit" type="number" min="10"
+			 max="1000" value="50">
+      <button onclick="sizeSet(event)">Set Size</button>
+      <button onclick="document.getElementById('sizeInputForm').style.display='none'">
+	Dismiss</button>
+    </div>
+    <div style="margin-top:10px">
+      <svg width="100%" focusable="false" style="display:block" id="course">
+      </svg>
+    </div>
+    <script>
+      buildCourse();
+    </script>
+  </body>
+</html>

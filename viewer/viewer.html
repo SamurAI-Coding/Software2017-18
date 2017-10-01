@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>SamurAI Jockey Race Viewer</title>
+    <script src="viewer.js"></script>
+  </head>
+  <body>
+    <div style="height:10%; width: 100%">
+      <button id="load" onclick="document.getElementById('fileInput').click();">
+	Load Log</button>
+      <input type="file" style="display:none" id="fileInput"
+	     onchange="loadFile(event)">
+      <button id="rewind" onclick="rewind(event)">&lt;&lt;</button>
+      <button id="back" onclick="stepBackward(event)">&lt;</button>
+      <button id="startStop" onclick="startStop(event)">Start</button>
+      <button id="forward" onclick="stepForward(event)">&gt;</button>
+      <input type="range" onchange="setPlaybackSpeed(this.value)"
+	     id="speedSlider"
+	     step="8" min="24" max="480" value="120" width="40px">
+      <span id="stepsPerMin">120</span>
+      steps/min
+      <button id="help" onclick="location.href='help.html'">Help</button>
+      <div id="raceState" style='margin-top:5px'>
+	<img src='clock.png' alt='clock: ' width='20px' height='20px'
+	     style='margin-bottom:-4pt'/>
+	<font color='blue'><span id='stepvalue'> </span></font>
+	<font color='red'><span id='name0'>Player 0</span>
+	  : <span id='position0'></span></font>
+	<font color='blue'><span id='name1'>Player 1</span>
+	  : <span id='position1'></span></font>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <svg style="position:fixed; left:0; height:90%; width:100%"
+	   onresize="windowResized()" id="svg">
+      </svg>
+    </div>
+    <script>
+      addKeyboardListener();
+    </script>
+  </body>
+</html>
