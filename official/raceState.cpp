@@ -10,9 +10,9 @@ RaceState::RaceState(RaceCourse &course,
 		     string &player0, string &name0, FILE* logFile0,
 		     string &player1, string &name1, FILE* logFile1):
   course(&course),
-  players({
+  players{
       Player(player0, course, course.startX[0], name0, logFile0),
-	Player(player1, course, course.startX[1], name1, logFile1)}) {
+	Player(player1, course, course.startX[1], name1, logFile1)} {
   goalTime[0] = goalTime[1] = 2*course.stepLimit;
   goaled[0] = goaled[1] = false;
 }
