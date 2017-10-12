@@ -1,15 +1,13 @@
 #include <cstdio>
-#include <boost/optional.hpp>
+#include <memory>
 #include <boost/process.hpp>
 
 struct RaceCourse;
 
-class Player {
-private:
-  boost::optional<boost::process::opstream&> toAI;
-  boost::optional<boost::process::ipstream&> fromAI;
-  boost::optional<boost::process::child&> child;
-public:
+struct Player {
+  std::unique_ptr<boost::process::opstream> toAI;
+  std::unique_ptr<boost::process::ipstream> fromAI;
+  std::unique_ptr<boost::process::child> child;
   string name;
   FILE *logOutput;
   Point position;

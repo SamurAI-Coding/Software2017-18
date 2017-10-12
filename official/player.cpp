@@ -2,15 +2,14 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <cctype>
-#include <boost/format.hpp>
 
 #include "course.hpp"
 #include "player.hpp"
 
-static int readInt(boost::optional<boost::process::ipstream&> in) {
+static int readInt(std::unique_ptr<boost::process::ipstream>&  in) {
   int num;
   std::string str;
-  in.get() >> str;
+  *in >> str;
   try {
     num = std::stoi(str);
   } catch (const std::invalid_argument& e) {
@@ -25,14 +24,17 @@ static int readInt(boost::optional<boost::process::ipstream&> in) {
   return num;
 }
 
-void sendToAI(boost::optional<boost::process::opstream&> toAI, FILE* logOutput, const char *fmt, int value) {
-  auto str = boost::format(fmt) % value;
-  toAI.get() << str;
+void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, FILE* logOutput, const char *fmt, int value) {
+  int n = std::snprintf(nullptr, 0, fmt, value);
+  auto cstr = new std::unique_ptr<char[]>(new char[n + 2]);
+  std::snprintf(cstr->get(), n + 1, fmt, value);
+  std::string str(cstr->get());
+  *toAI << str;
   if (logOutput != nullptr) fprintf(logOutput, fmt, value);
 }
 
-void flushToAI(boost::optional<boost::process::opstream&> toAI, FILE* logOutput) {
-  toAI.get().flush();
+void flushToAI(std::unique_ptr<boost::process::opstream>& toAI, FILE* logOutput) {
+  toAI->flush();
   if (logOutput != nullptr) fflush(logOutput);
 }
 
@@ -42,12 +44,15 @@ Player::Player(string command, const RaceCourse &course, int xpos,
   name(name), logOutput(logFile), position(Point(xpos, 0)), velocity(0, 0),
   timeLeft(course.thinkTime) {
   auto env = boost::this_process::environment();
-  boost::process::opstream _toAI;
-  boost::process::ipstream _fromAI;
-  boost::process::child _child(command, boost::process::std_out > _fromAI, boost::process::std_err > stderr, boost::process::std_in < _toAI, env);
-  this->toAI = _toAI;
-  this->fromAI = _fromAI;
-  this->child = _child;
+  toAI = std::unique_ptr<boost::process::opstream>(new boost::process::opstream);
+  fromAI = std::unique_ptr<boost::process::ipstream>(new boost::process::ipstream);
+  child = std::unique_ptr<boost::process::child>(new boost::process::child(
+    command,
+    boost::process::std_out > *fromAI,
+    boost::process::std_err > stderr,
+    boost::process::std_in < *toAI,
+    env
+  ));
   sendToAI(toAI, logOutput, "%d\n", course.thinkTime);
   sendToAI(toAI, logOutput, "%d\n", course.stepLimit);
   sendToAI(toAI, logOutput, "%d ", course.width);
@@ -91,5 +96,5 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
 }
     
 void Player::terminate() {
-  child.get().terminate();
+  child->terminate();
 }
