@@ -12,7 +12,7 @@ struct Player {
   IntVec velocity;
   int timeLeft;
   Player(string command, const RaceCourse &course,
-	 int xpos, string name, FILE *logFile);
+	 int xpos, string name, FILE *logFile, char *envp[]);
   IntVec play(int c, Player &op, RaceCourse &course);
   void terminate();
 };

@@ -1,6 +1,6 @@
 #include "raceState.hpp"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[], char *envp[]) {
   if (argc < 6 || 8 < argc ) {
     cerr << "Usage: " << argv[0]
 	 << " <course file> <player0> <name0> <player1> <name1> "
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   string name1 = argv[5];
   FILE* logFile0 = argc > 6 ? fopen(argv[6], "w") : nullptr;
   FILE* logFile1 = argc > 7 ? fopen(argv[7], "w") : nullptr;
-  RaceState state(course, player0, name0, logFile0, player1, name1, logFile1);
+  RaceState state(course, player0, name0, logFile0, player1, name1, logFile1, envp);
   for (int c = 0; c != course.stepLimit && !state.playOneStep(c); c++)
     ;
   for (int p = 0; p != 2; p++) {

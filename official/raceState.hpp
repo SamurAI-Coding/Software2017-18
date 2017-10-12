@@ -42,6 +42,6 @@ struct RaceState {
   list<StepRecord> records[2];
   RaceState(RaceCourse &course,
 	    string& player0, string &name0, FILE* logFile0,
-	    string &player1, string &name1, FILE* logFile1);
+	    string &player1, string &name1, FILE* logFile1, char *envp[]);
   bool playOneStep(int c);
 };
