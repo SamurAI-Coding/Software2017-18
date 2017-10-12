@@ -38,7 +38,7 @@ bool Course::obstacled(Point &from, Point &to) const {
     x1 = from.x, y1 = from.y,
     x2 = to.x, y2 = to.y;
   if (x2 < 0 || width <= x2 || y2 < 0) return true;
-  if (obstacle[x2][y2] == OBSTACLE) return true;
+  if (y2 <= length && obstacle[x2][y2] == OBSTACLE) return true;
   int xstep, xstart, xend;
   if (x1 < x2) {
     xstep = 1; xstart = max(0, x1); xend = min(width, x2);
@@ -86,8 +86,8 @@ Course::Course(istream &in) {
   in >> thinkTime >> stepLimit>> width >> length >> vision;
   obstacle = vector<vector<ObstState>>(width);
   for (int x = 0; x != width; x++) {
-    obstacle[x] = vector<ObstState>(length);
-    for (int y = 0; y != length; y++) {
+    obstacle[x] = vector<ObstState>(length + 1);
+    for (int y = 0; y <= length; y++) {
       obstacle[x][y] = UNKNOWN;
     }
   }
@@ -105,7 +105,7 @@ RaceState::RaceState(istream &in, Course &course) {
        y++) {
     for (int x = 0; x != course.width; x++) {
       int o; in >> o;
-      if (y >= 0 && y < course.length) {
+      if (y >= 0 && y <= course.length) {
 	course.obstacle[x][y] = (o == 0 ? NONE : OBSTACLE);
       }
     }
