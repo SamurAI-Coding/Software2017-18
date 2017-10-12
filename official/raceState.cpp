@@ -31,7 +31,7 @@ bool RaceState::playOneStep(int c) {
       nextPosition[p] = players[p].position + nextVelocity[p];
       move[p] = LineSegment(players[p].position, nextPosition[p]);
       if (nextPosition[p].x < 0 || course->width <= nextPosition[p].x ||
-	  course->collides(move[p])) {
+	  nextPosition[p].y < 0 || course->collides(move[p])) {
 	res[p] = STOPPED;
       }
     }
