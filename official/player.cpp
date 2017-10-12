@@ -40,7 +40,7 @@ void flushToAI(FILE* toAI, FILE* logOutput) {
 
 
 Player::Player(string command, const RaceCourse &course, int xpos,
-	       string name, FILE* logFile):
+	       string name, FILE* logFile, char *envp[]):
   name(name), logOutput(logFile), position(Point(xpos, 0)), velocity(0, 0),
   timeLeft(course.thinkTime) {
   int infoPipe[2];
@@ -59,7 +59,6 @@ Player::Player(string command, const RaceCourse &course, int xpos,
     close(respPipe[0]);
     char *cmd = strcpy(new char[command.size()+1], command.c_str());
     char *const argv[] = { cmd, nullptr };
-    char *const envp[] = { nullptr };
     execve(cmd, argv, envp);
   } else {
     toAI = fdopen(infoPipe[1], "w");
