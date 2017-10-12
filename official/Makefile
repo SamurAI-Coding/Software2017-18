@@ -1,4 +1,5 @@
 CXXFLAGS= -pthread -std=c++11 -g -Wall
+AM_LDFLAGS= -lboost_system$(BOOST_LIB_SUFFIX) -lboost_filesystem$(BOOST_LIB_SUFFIX)
 CXX= c++
 
 OBJECTS= main.o course.o raceState.o player.o
@@ -12,7 +13,16 @@ tags: ${SOURCES}
 	etags $^
 
 ${TARGET}: ${OBJECTS}
-	${CXX} ${CXXFLAGS} -o $@ $^
+#ifeq ($(OS), Windows_NT)
+ifndef BOOST_LIB_SUFFIX
+	@echo "You didn't specify variable BOOST_LIB_SUFFIX."
+	@echo "If you build in mingw64, it might be a solution to set \`BOOST_LIB_SUFFIX=-mt\`."
+else
+	@echo "You specified variable BOOST_LIB_SUFFIX=$(BOOST_LIB_SUFFIX)"
+	@echo "If it doesn't run to build, you should \`make clean\`."
+endif
+#endif
+	${CXX} ${CXXFLAGS} -o $@ $^ ${AM_LDFLAGS}
 
 -include ${OBJECTS:.o=.d}
 
