@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "official", "official\official.vcxproj", "{683FD3CB-4764-434F-ADE9-5E58B530EB62}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "player_greedy", "player\player.vcxproj", "{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{683FD3CB-4764-434F-ADE9-5E58B530EB62}.Release|x64.Build.0 = Release|x64
 		{683FD3CB-4764-434F-ADE9-5E58B530EB62}.Release|x86.ActiveCfg = Release|Win32
 		{683FD3CB-4764-434F-ADE9-5E58B530EB62}.Release|x86.Build.0 = Release|Win32
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Debug|x64.ActiveCfg = Debug|x64
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Debug|x64.Build.0 = Debug|x64
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Debug|x86.ActiveCfg = Debug|Win32
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Debug|x86.Build.0 = Debug|Win32
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Release|x64.ActiveCfg = Release|x64
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Release|x64.Build.0 = Release|x64
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Release|x86.ActiveCfg = Release|Win32
+		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
