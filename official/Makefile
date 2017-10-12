@@ -1,5 +1,5 @@
-CPPFLAGS= -pthread -std=c++11 -g -Wall
-CPP= c++
+CXXFLAGS= -pthread -std=c++11 -g -Wall
+CXX= c++
 
 OBJECTS= main.o course.o raceState.o player.o
 SOURCES= *.cpp *.hpp
@@ -12,13 +12,13 @@ tags: ${SOURCES}
 	etags $^
 
 ${TARGET}: ${OBJECTS}
-	${CPP} ${CPPFLAGS} -o $@ $^
+	${CXX} ${CXXFLAGS} -o $@ $^
 
 -include ${OBJECTS:.o=.d}
 
 %.o: %.cpp
-	${CPP} -c ${CPPFLAGS} $*.cpp -o $*.o
-	${CPP} -MM ${CPPFLAGS} $*.cpp > $*.d
+	${CXX} -c ${CXXFLAGS} $*.cpp -o $*.o
+	${CXX} -MM ${CXXFLAGS} $*.cpp > $*.d
 
 clean:
 	rm -f TAGS
