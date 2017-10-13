@@ -7,13 +7,17 @@ SOURCES= *.cpp *.hpp
 
 TARGET= official
 
+ifeq ($(OS), Windows_NT)
+AM_LDFLAGS += -lws2_32 -static
+endif
+
 all: ${TARGET}
 
 tags: ${SOURCES}
 	etags $^
 
 ${TARGET}: ${OBJECTS}
-#ifeq ($(OS), Windows_NT)
+ifeq ($(OS), Windows_NT)
 ifndef BOOST_LIB_SUFFIX
 	@echo "You didn't specify variable BOOST_LIB_SUFFIX."
 	@echo "If you build in mingw64, it might be a solution to set \`BOOST_LIB_SUFFIX=-mt\`."
@@ -21,7 +25,7 @@ else
 	@echo "You specified variable BOOST_LIB_SUFFIX=$(BOOST_LIB_SUFFIX)"
 	@echo "If it doesn't run to build, you should \`make clean\`."
 endif
-#endif
+endif
 	${CXX} ${CXXFLAGS} -o $@ $^ ${AM_LDFLAGS}
 
 -include ${OBJECTS:.o=.d}
