@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "official", "official\official.vcxproj", "{683FD3CB-4764-434F-ADE9-5E58B530EB62}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "player_greedy", "player\player.vcxproj", "{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "player_greedy", "player\player_greedy.vcxproj", "{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
