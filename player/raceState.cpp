@@ -32,7 +32,7 @@ bool LineSegment::intersects(const LineSegment &l) const {
   return true;
 }
 
-bool Course::obstacled(Point &from, Point &to) const {
+bool Course::obstacled(const Point &from, const Point &to) const {
   LineSegment m(from, to);
   int
     x1 = from.x, y1 = from.y,
