@@ -38,7 +38,7 @@ struct Course {
   int vision;
   int thinkTime, stepLimit;
   vector <vector <ObstState>> obstacle;
-  bool obstacled(Point &from, Point &to) const;
+  bool obstacled(const Point &from, const Point &to) const;
   Course(istream &in);
 };
 
