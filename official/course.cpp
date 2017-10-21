@@ -22,7 +22,7 @@ bool LineSegment::goesThru(const Point &p) const {
   if (p.y < miny) return false;
   int maxy = max(p1.y, p2.y);
   if (p.y > maxy) return false;
-  return ccw(p1.x, p1.y, p2.x, p2.y, p.x, p.y) == 0 && dot(p1.x - p.x, p1.y - p.y, p2.x - p.y, p2.y - p.y) <= 0;
+  return ccw(p1.x, p1.y, p2.x, p2.y, p.x, p.y) == 0 && dot(p1.x - p.x, p1.y - p.y, p2.x - p.x, p2.y - p.y) <= 0;
 }
 
 bool LineSegment::intersects(const LineSegment &l) const {
