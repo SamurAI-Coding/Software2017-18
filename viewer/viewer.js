@@ -314,6 +314,19 @@ function drawCourse() {
 
 var timerPlay = -1;
 
+var viewOption = "buttom";
+function changeViewOption(obj) {
+  const start = timerPlay != -1;
+  if (start) {
+    stopPlay();
+  }
+  viewOption = obj.options[obj.selectedIndex].value;
+  setStep(step);
+  if (start) {
+    startPlay();
+  }
+}
+
 const initialStepsPerMin = 120;
 var stepsPerMin = initialStepsPerMin;
 function setPlaybackSpeed(value) {
@@ -397,21 +410,40 @@ function setStep(c) {
   var miny = 1e10;
   var maxy = -1;
   const play0 = raceLog['log0'][step];
+  var before0 = course.length;
+  var after0 = course.length;
   if (play0) {
-    const before0 = play0.before.y;
-    const after0 = before0 + play0.velocity.y + play0.acceleration.y;
+    before0 = play0.before.y;
+    after0 = before0 + play0.velocity.y + play0.acceleration.y;
     miny = Math.min(Math.min(before0, after0), miny);
-    maxy = Math.max(Math.max(before0, after0), maxy);
+    maxy = Math.max(Math.min(before0, after0), maxy);
   }
   const play1 = raceLog['log1'][step];
+  var before1 = course.length;
+  var after1 = course.length;
   if (play1) {
-    const before1 = play1.before.y;
-    const after1 = before1 + play1.velocity.y + play1.acceleration.y;
+    before1 = play1.before.y;
+    after1 = before1 + play1.velocity.y + play1.acceleration.y;
     miny = Math.min(Math.min(before1, after1), miny);
-    maxy = Math.max(Math.max(before1, after1), maxy);
+    maxy = Math.max(Math.min(before1, after1), maxy);
   }
-  var offset= mag*(course.length-miny)-svgHeight/2;
-  offset = Math.min(mag*(course.length-miny+1)-svgHeight, offset);
+  var offset;
+  switch (viewOption) {
+    case "top":
+      offset= mag * (course.length + 1 - maxy) - svgHeight;
+      break;
+    case "player0":
+      offset= mag * (course.length + 1 - Math.min(before0, after0)) - svgHeight;
+      break;
+    case "player1":
+      offset= mag * (course.length + 1 - Math.min(before1, after1)) - svgHeight;
+      break;
+    default:
+      console.log("viewOption value : " + viewOption + " is funny.  call staff.");
+    case "buttom":
+      offset = mag * (course.length + 1 - miny) - svgHeight;
+  }
+  offset = Math.min(mag * (course.length + 1) - svgHeight, offset);
   offset = Math.max(0, offset);
   field.setAttribute(
     'viewBox',
