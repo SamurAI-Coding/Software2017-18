@@ -37,6 +37,7 @@ const obstLineWidth = '4';
 
 const playerFill = ['pink', 'skyblue'];
 const collisionFill = 'gray';
+const failedFill = 'tomato';
 const playerStroke = ['red', 'blue'];
 const playerStrokeWidth = 1;
 
@@ -140,7 +141,31 @@ function makeTrace() {
 
 function drawPlayer(p) {
   const player = players[p];
-  const play = raceLog['log'+p][step];
+  const log = raceLog['log' + p];
+  const play = log[step];
+  var failed = false;
+  failed |= play && play.result === -1;
+  failed |= !play && log.length > 0 && log[log.length - 1].result === -1;
+  if (failed) {
+    const last = log[log.length - 1];
+    var px = last.after.x;
+    var py = last.after.y;
+    player.icon.setAttribute('display', 'block');
+    player.icon.setAttribute(
+      'transform', 'translate(' + gridX(px, py)+','+ gridY(px, py)+')');
+    player.body.setAttribute(
+      'transform', 'rotate(0)');
+    player.moveDot.setAttribute('cx', 0);
+    player.moveDot.setAttribute('cy', 0);
+    player.move.setAttribute('x2', 0);
+    player.move.setAttribute('y2', 0);
+    player.body.style.fill = failedFill;
+    if (play) collisionSound.play();
+    var coords = document.getElementById('position'+p);
+    coords.innerHTML = '(' + (px) + ',' + (py) + ')';
+    player.icon.setAttribute('display', 'block');
+    return;
+  }
   if (play) {
     var px = play.before.x;
     var py = play.before.y;
@@ -417,6 +442,11 @@ function setStep(c) {
     after0 = before0 + play0.velocity.y + play0.acceleration.y;
     miny = Math.min(Math.min(before0, after0), miny);
     maxy = Math.max(Math.min(before0, after0), maxy);
+  } else if (raceLog['log0'].length > 0 && raceLog['log0'][raceLog['log0'].length - 1].result == -1) {
+    const last = raceLog['log0'][raceLog['log0'].length - 1].after.y;
+    before0 = after0 = last;
+    miny = Math.min(last, miny);
+    maxy = Math.max(last, maxy);
   }
   const play1 = raceLog['log1'][step];
   var before1 = course.length;
@@ -426,6 +456,11 @@ function setStep(c) {
     after1 = before1 + play1.velocity.y + play1.acceleration.y;
     miny = Math.min(Math.min(before1, after1), miny);
     maxy = Math.max(Math.min(before1, after1), maxy);
+  } else if (raceLog['log1'].length > 0 && raceLog['log1'][raceLog['log1'].length - 1].result == -1) {
+    const last = raceLog['log1'][raceLog['log1'].length - 1].after.y;
+    befor1 = after1 = last;
+    miny = Math.min(last, miny);
+    maxy = Math.max(last, maxy);
   }
   var offset;
   switch (viewOption) {
