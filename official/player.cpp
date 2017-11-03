@@ -6,79 +6,64 @@
 #include "course.hpp"
 #include "player.hpp"
 
-static int readInt(FILE *in) {
-  char c;
-  bool negate = false;
-  do {
-    c = fgetc(in);
-  } while (isblank(c));
-  if (c == '-') {
-    negate = !negate;
-    c = fgetc(in);
-  }
-  if (!isdigit(c)) {
-    cerr << "Illegal response from AI: '" << c << "'" << endl;
+static int readInt(std::unique_ptr<boost::process::ipstream>&  in) {
+  int num;
+  std::string str;
+  *in >> str;
+  try {
+    num = std::stoi(str);
+  } catch (const std::invalid_argument& e) {
+    std::cerr << "input invalid argument from AI : " << str << std::endl;
+    std::cerr << e.what() << std::endl;
+    exit(1);
+  } catch (const std::out_of_range& e) {
+    std::cerr << "input out of int range value from AI : " << str << std::endl;
+    std::cerr << e.what() << std::endl;
     exit(1);
   }
-  int v = 0;
-  do {
-    v = 10*v + c - '0';
-    c = fgetc(in);
-  } while (isdigit(c));
-  return negate ? -v : v;
+  return num;
 }
 
-void sendToAI(FILE* toAI, FILE* logOutput, const char *fmt, int value) {
-  fprintf(toAI, fmt, value);
+void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, FILE* logOutput, const char *fmt, int value) {
+  int n = std::snprintf(nullptr, 0, fmt, value);
+  auto cstr = new std::unique_ptr<char[]>(new char[n + 2]);
+  std::snprintf(cstr->get(), n + 1, fmt, value);
+  std::string str(cstr->get());
+  *toAI << str;
   if (logOutput != nullptr) fprintf(logOutput, fmt, value);
 }
 
-void flushToAI(FILE* toAI, FILE* logOutput) {
-  fflush(toAI);
+void flushToAI(std::unique_ptr<boost::process::opstream>& toAI, FILE* logOutput) {
+  toAI->flush();
   if (logOutput != nullptr) fflush(logOutput);
 }
 
 
 Player::Player(string command, const RaceCourse &course, int xpos,
-	       string name, FILE* logFile):
+         string name, FILE* logFile):
   name(name), logOutput(logFile), position(Point(xpos, 0)), velocity(0, 0),
   timeLeft(course.thinkTime) {
-  int infoPipe[2];
-  int respPipe[2];
-  pipe(infoPipe);
-  pipe(respPipe);
-  processId = fork();
-  if (processId == -1) {
-    cerr << "Failed to fork an AI process: " << command << endl;
+  auto env = boost::this_process::environment();
+  toAI = std::unique_ptr<boost::process::opstream>(new boost::process::opstream);
+  fromAI = std::unique_ptr<boost::process::ipstream>(new boost::process::ipstream);
+  child = std::unique_ptr<boost::process::child>(new boost::process::child(
+    command,
+    boost::process::std_out > *fromAI,
+    boost::process::std_err > stderr,
+    boost::process::std_in < *toAI,
+    env
+  ));
+  sendToAI(toAI, logOutput, "%d\n", course.thinkTime);
+  sendToAI(toAI, logOutput, "%d\n", course.stepLimit);
+  sendToAI(toAI, logOutput, "%d ", course.width);
+  sendToAI(toAI, logOutput, "%d\n", course.length);
+  sendToAI(toAI, logOutput, "%d\n", course.vision);
+  flushToAI(toAI, logOutput);
+  int ans = readInt(fromAI);
+  if (ans != 0) {
+    cerr << "Response at initialization of player <" << command << "> ("
+   << ans << ") is non-zero" << endl;
     exit(1);
-  } else if (processId == 0) {
-    // In child process
-    dup2(infoPipe[0], 0);
-    close(infoPipe[1]);
-    dup2(respPipe[1], 1);
-    close(respPipe[0]);
-    char *cmd = strcpy(new char[command.size()+1], command.c_str());
-    char *const argv[] = { cmd, nullptr };
-    char *const envp[] = { nullptr };
-    execve(cmd, argv, envp);
-  } else {
-    toAI = fdopen(infoPipe[1], "w");
-    close(infoPipe[0]);
-    fromAI = fdopen(respPipe[0], "r");
-    close(respPipe[1]);
-    sendToAI(toAI, logOutput, "%d\n", course.thinkTime);
-    sendToAI(toAI, logOutput, "%d\n", course.stepLimit);
-    sendToAI(toAI, logOutput, "%d ", course.width);
-    sendToAI(toAI, logOutput, "%d\n", course.length);
-    sendToAI(toAI, logOutput, "%d\n", course.vision);
-    flushToAI(toAI, logOutput);
-    int ans;
-    ans = readInt(fromAI);
-    if (ans != 0) {
-      cerr << "Response at initialization of player <" << command << "> ("
-	   << ans << ") is non-zero" << endl;
-      exit(1);
-    }
   }
 }
 
@@ -98,8 +83,8 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
        y++) {
     for (int x = 0; x != course.width; x++) {
       sendToAI(toAI, logOutput, "%d ",
-	       (y < 0 || y > course.length ||
-		course.obstacle[x][y] ? 1 : 0));
+         (y < 0 || y > course.length ||
+    course.obstacle[x][y] ? 1 : 0));
     }
     sendToAI(toAI, logOutput, "\n", 0);
   }
@@ -111,5 +96,5 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
 }
     
 void Player::terminate() {
-  kill(processId, SIGKILL);
+  child->terminate();
 }

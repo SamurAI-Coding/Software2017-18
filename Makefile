@@ -1,4 +1,6 @@
-all: DOCUMENTS OFFICIAL PLAYER VIEWER EDITOR
+subdirs := DOCUMENTS OFFICIAL PLAYER VIEWER EDITOR
+.PHONY: all $(subdirs)
+all:  $(subdirs)
 
 DOCUMENTS:
 	cd documents; make

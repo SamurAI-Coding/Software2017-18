@@ -1,6 +1,18 @@
 #include <algorithm>
 #include "course.hpp"
 
+static int dot(int x1, int y1, int x2, int y2) {
+  return x1 * x2 + y1 * y2;
+}
+
+static int cross(int x1, int y1, int x2, int y2) {
+  return x1 * y2 - x2 * y1;
+}
+
+static int ccw(int x1, int y1, int x2, int y2, int x3, int y3) {
+  return cross(x2 - x1, y2 - y1, x3 - x2, y3 - y2);
+}
+
 bool LineSegment::goesThru(const Point &p) const {
   int minx = min(p1.x, p2.x);
   if (p.x < minx) return false;
@@ -10,7 +22,7 @@ bool LineSegment::goesThru(const Point &p) const {
   if (p.y < miny) return false;
   int maxy = max(p1.y, p2.y);
   if (p.y > maxy) return false;
-  return (p.y - miny)*(maxx - minx) == (p.x - minx)*(maxy-miny);
+  return ccw(p1.x, p1.y, p2.x, p2.y, p.x, p.y) == 0 && dot(p1.x - p.x, p1.y - p.y, p2.x - p.x, p2.y - p.y) <= 0;
 }
 
 bool LineSegment::intersects(const LineSegment &l) const {

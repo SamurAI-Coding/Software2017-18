@@ -1,5 +1,17 @@
 #include "raceState.hpp"
 
+static int dot(int x1, int y1, int x2, int y2) {
+  return x1 * x2 + y1 * y2;
+}
+
+static int cross(int x1, int y1, int x2, int y2) {
+  return x1 * y2 - x2 * y1;
+}
+
+static int ccw(int x1, int y1, int x2, int y2, int x3, int y3) {
+  return cross(x2 - x1, y2 - y1, x3 - x2, y3 - y2);
+}
+
 bool LineSegment::goesThru(const Point &p) const {
   int minx = min(p1.x, p2.x);
   if (p.x < minx) return false;
@@ -9,7 +21,7 @@ bool LineSegment::goesThru(const Point &p) const {
   if (p.y < miny) return false;
   int maxy = max(p1.y, p2.y);
   if (p.y > maxy) return false;
-  return (p.y - miny)*(maxx - minx) == (p.x - minx)*(maxy-miny);
+  return ccw(p1.x, p1.y, p2.x, p2.y, p.x, p.y) == 0 && dot(p1.x - p.x, p1.y - p.y, p2.x - p.x, p2.y - p.y) <= 0;
 }
 
 bool LineSegment::intersects(const LineSegment &l) const {
@@ -32,13 +44,13 @@ bool LineSegment::intersects(const LineSegment &l) const {
   return true;
 }
 
-bool Course::obstacled(Point &from, Point &to) const {
+bool Course::obstacled(const Point &from, const Point &to) const {
   LineSegment m(from, to);
   int
     x1 = from.x, y1 = from.y,
     x2 = to.x, y2 = to.y;
   if (x2 < 0 || width <= x2 || y2 < 0) return true;
-  if (obstacle[x2][y2] == OBSTACLE) return true;
+  if (y2 <= length && obstacle[x2][y2] == OBSTACLE) return true;
   int xstep, xstart, xend;
   if (x1 < x2) {
     xstep = 1; xstart = max(0, x1); xend = min(width, x2);
@@ -86,8 +98,8 @@ Course::Course(istream &in) {
   in >> thinkTime >> stepLimit>> width >> length >> vision;
   obstacle = vector<vector<ObstState>>(width);
   for (int x = 0; x != width; x++) {
-    obstacle[x] = vector<ObstState>(length);
-    for (int y = 0; y != length; y++) {
+    obstacle[x] = vector<ObstState>(length + 1);
+    for (int y = 0; y <= length; y++) {
       obstacle[x][y] = UNKNOWN;
     }
   }
@@ -105,7 +117,7 @@ RaceState::RaceState(istream &in, Course &course) {
        y++) {
     for (int x = 0; x != course.width; x++) {
       int o; in >> o;
-      if (y >= 0 && y < course.length) {
+      if (y >= 0 && y <= course.length) {
 	course.obstacle[x][y] = (o == 0 ? NONE : OBSTACLE);
       }
     }
