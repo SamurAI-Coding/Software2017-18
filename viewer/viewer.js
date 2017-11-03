@@ -37,6 +37,7 @@ const obstLineWidth = '4';
 
 const playerFill = ['pink', 'skyblue'];
 const collisionFill = 'gray';
+const failedFill = 'tomato';
 const playerStroke = ['red', 'blue'];
 const playerStrokeWidth = 1;
 
@@ -140,7 +141,31 @@ function makeTrace() {
 
 function drawPlayer(p) {
   const player = players[p];
-  const play = raceLog['log'+p][step];
+  const log = raceLog['log' + p];
+  const play = log[step];
+  var failed = false;
+  failed |= play && play.result === -1;
+  failed |= !play && log.length > 0 && log[log.length - 1].result === -1;
+  if (failed) {
+    const last = log[log.length - 1];
+    var px = last.after.x;
+    var py = last.after.y;
+    player.icon.setAttribute('display', 'block');
+    player.icon.setAttribute(
+      'transform', 'translate(' + gridX(px, py)+','+ gridY(px, py)+')');
+    player.body.setAttribute(
+      'transform', 'rotate(0)');
+    player.moveDot.setAttribute('cx', 0);
+    player.moveDot.setAttribute('cy', 0);
+    player.move.setAttribute('x2', 0);
+    player.move.setAttribute('y2', 0);
+    player.body.style.fill = failedFill;
+    if (play) collisionSound.play();
+    var coords = document.getElementById('position'+p);
+    coords.innerHTML = '(' + (px) + ',' + (py) + ')';
+    player.icon.setAttribute('display', 'block');
+    return;
+  }
   if (play) {
     var px = play.before.x;
     var py = play.before.y;
@@ -314,6 +339,19 @@ function drawCourse() {
 
 var timerPlay = -1;
 
+var viewOption = "buttom";
+function changeViewOption(obj) {
+  const start = timerPlay != -1;
+  if (start) {
+    stopPlay();
+  }
+  viewOption = obj.options[obj.selectedIndex].value;
+  setStep(step);
+  if (start) {
+    startPlay();
+  }
+}
+
 const initialStepsPerMin = 120;
 var stepsPerMin = initialStepsPerMin;
 function setPlaybackSpeed(value) {
@@ -397,21 +435,50 @@ function setStep(c) {
   var miny = 1e10;
   var maxy = -1;
   const play0 = raceLog['log0'][step];
+  var before0 = course.length;
+  var after0 = course.length;
   if (play0) {
-    const before0 = play0.before.y;
-    const after0 = before0 + play0.velocity.y + play0.acceleration.y;
+    before0 = play0.before.y;
+    after0 = before0 + play0.velocity.y + play0.acceleration.y;
     miny = Math.min(Math.min(before0, after0), miny);
-    maxy = Math.max(Math.max(before0, after0), maxy);
+    maxy = Math.max(Math.min(before0, after0), maxy);
+  } else if (raceLog['log0'].length > 0 && raceLog['log0'][raceLog['log0'].length - 1].result == -1) {
+    const last = raceLog['log0'][raceLog['log0'].length - 1].after.y;
+    before0 = after0 = last;
+    miny = Math.min(last, miny);
+    maxy = Math.max(last, maxy);
   }
   const play1 = raceLog['log1'][step];
+  var before1 = course.length;
+  var after1 = course.length;
   if (play1) {
-    const before1 = play1.before.y;
-    const after1 = before1 + play1.velocity.y + play1.acceleration.y;
+    before1 = play1.before.y;
+    after1 = before1 + play1.velocity.y + play1.acceleration.y;
     miny = Math.min(Math.min(before1, after1), miny);
-    maxy = Math.max(Math.max(before1, after1), maxy);
+    maxy = Math.max(Math.min(before1, after1), maxy);
+  } else if (raceLog['log1'].length > 0 && raceLog['log1'][raceLog['log1'].length - 1].result == -1) {
+    const last = raceLog['log1'][raceLog['log1'].length - 1].after.y;
+    befor1 = after1 = last;
+    miny = Math.min(last, miny);
+    maxy = Math.max(last, maxy);
   }
-  var offset= mag*(course.length-miny)-svgHeight/2;
-  offset = Math.min(mag*(course.length-miny+1)-svgHeight, offset);
+  var offset;
+  switch (viewOption) {
+    case "top":
+      offset= mag * (course.length + 1 - maxy) - svgHeight;
+      break;
+    case "player0":
+      offset= mag * (course.length + 1 - Math.min(before0, after0)) - svgHeight;
+      break;
+    case "player1":
+      offset= mag * (course.length + 1 - Math.min(before1, after1)) - svgHeight;
+      break;
+    default:
+      console.log("viewOption value : " + viewOption + " is funny.  call staff.");
+    case "buttom":
+      offset = mag * (course.length + 1 - miny) - svgHeight;
+  }
+  offset = Math.min(mag * (course.length + 1) - svgHeight, offset);
   offset = Math.max(0, offset);
   field.setAttribute(
     'viewBox',

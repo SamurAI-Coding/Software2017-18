@@ -4,7 +4,7 @@
 #include "course.hpp"
 #include "player.hpp"
 
-const int TIMEOUT = -1;
+const int FUNNY = -1;
 const int NORMAL = 0;
 const int STOPPED = 1;
 
@@ -45,3 +45,4 @@ struct RaceState {
 	    string &player1, string &name1, FILE* logFile1);
   bool playOneStep(int c);
 };
+

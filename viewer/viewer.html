@@ -20,6 +20,12 @@
 	     step="8" min="24" max="480" value="120" width="40px">
       <span id="stepsPerMin">120</span>
       steps/min
+      <select name="option" onchange="changeViewOption(this)">
+        <option value="top">chase top</option>
+        <option value="buttom" selected>chase buttom</option>
+        <option value="player0">chase player0</option>
+        <option value="player1">chase player1</option>
+      </select>
       <button id="help" onclick="location.href='help.html'">Help</button>
       <div id="raceState" style='margin-top:5px'>
 	<img src='clock.png' alt='clock: ' width='20px' height='20px'
