@@ -45,25 +45,6 @@ bool LineSegment::intersects(const LineSegment &l) const {
   return true;
 }
 
-bool Obstacle::intersects(const LineSegment &move) const {
-  int minx = min(move.p1.x, move.p2.x);
-  int maxx = max(move.p1.x, move.p2.x);
-  if (maxx < x-0.5 || x+w-0.5 < minx) return false;
-  int miny = min(move.p1.y, move.p2.y);
-  int maxy = max(move.p1.y, move.p2.y);
-  if (maxy < y || y < miny) return false;
-  LineSegment move2(Point(2*move.p1.x, 2*move.p1.y), Point(2*move.p2.x, 2*move.p2.y));
-  Point nw(2*x-1, 2*y+1);
-  Point ne(2*(x+w)-1, 2*y+1);
-  Point sw(2*x-1, 2*y-1);
-  Point se(2*(x+w)-1, 2*y-1);
-  return
-    LineSegment(nw, sw).intersects(move2) ||
-    LineSegment(ne, se).intersects(move2) ||
-    LineSegment(nw, ne).intersects(move2) ||
-    LineSegment(sw, se).intersects(move2);
-}
-
 bool RaceCourse::collides(const LineSegment &m) const {
   int
     x1 = m.p1.x, y1 = m.p1.y,
@@ -131,10 +112,6 @@ RaceCourse::RaceCourse(istream &in) {
 
 void IntVec::writeJson(ostream &out) {
   out << "{ \"x\": " << x << ", \"y\": " << y << " }";
-}
-
-void Obstacle::writeJson(ostream &out) {
-  out << "{ \"x\": " << x << ", \"w\": " << w << " }";
 }
 
 void RaceCourse::writeJson(ostream &out) {

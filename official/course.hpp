@@ -33,13 +33,6 @@ struct LineSegment {
   bool intersects(const LineSegment &l) const;
 };
 
-struct Obstacle {
-  int x, y, w;
-  Obstacle(int x, int y, int w): x(x), y(y), w(w) {};
-  bool intersects(const LineSegment &m) const;
-  void writeJson(ostream &out);
-};
-
 struct RaceCourse {
   ptree courseTree;
   int width, length;
