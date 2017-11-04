@@ -1,4 +1,4 @@
-CXXFLAGS= -pthread -std=c++11 -g -Wall
+CXXFLAGS= -pthread -std=c++11 -W -Wall -O2 -march=native
 CXX= c++
 
 OBJECTS_GREEDY= greedy.o raceState.o
