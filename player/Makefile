@@ -1,13 +1,18 @@
 CXXFLAGS= -pthread -std=c++11 -g -Wall
 CXX= c++
 
-OBJECTS= greedy.o raceState.o
+OBJECTS_GREEDY= greedy.o raceState.o
+OBJECTS_PSEUDO_ALPHABETA= pseudo_alphabeta.o raceState.o
 
-TARGET= greedy
+TARGET_GREEDY= greedy
+TARGET_PSEUDO_ALPHABETA= pseudo_alphabeta
 
-all: ${TARGET}
+all: ${TARGET_GREEDY} ${TARGET_PSEUDO_ALPHABETA}
 
-${TARGET}: ${OBJECTS}
+${TARGET_GREEDY}: ${OBJECTS_GREEDY}
+	${CXX} ${CXXFLAGS} -o $@ $^
+
+${TARGET_PSEUDO_ALPHABETA}: ${OBJECTS_PSEUDO_ALPHABETA}
 	${CXX} ${CXXFLAGS} -o $@ $^
 
 -include ${OBJECTS:.o=.d}

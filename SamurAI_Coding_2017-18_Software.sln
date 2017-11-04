@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "official", "official\official.vcxproj", "{683FD3CB-4764-434F-ADE9-5E58B530EB62}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "player_greedy", "player\player_greedy.vcxproj", "{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "player_pseudo_alphabeta", "player\player_pseudo_alphabeta.vcxproj", "{C692E42E-3981-4AA5-84F4-0009F9C26EAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,8 +33,19 @@ Global
 		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Release|x64.Build.0 = Release|x64
 		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Release|x86.ActiveCfg = Release|Win32
 		{4DE0E2C5-548E-41C9-AF34-292BF5D6129E}.Release|x86.Build.0 = Release|Win32
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Debug|x64.ActiveCfg = Debug|x64
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Debug|x64.Build.0 = Debug|x64
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Debug|x86.ActiveCfg = Debug|Win32
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Debug|x86.Build.0 = Debug|Win32
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Release|x64.ActiveCfg = Release|x64
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Release|x64.Build.0 = Release|x64
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Release|x86.ActiveCfg = Release|Win32
+		{C692E42E-3981-4AA5-84F4-0009F9C26EAD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0C798096-2D29-4107-9028-96E58366EDF4}
 	EndGlobalSection
 EndGlobal
