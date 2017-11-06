@@ -1,5 +1,9 @@
 #include <list>
 #include <cstdio>
+#include <memory>
+#include <fstream>
+
+#include <boost/optional.hpp>
 
 #include "course.hpp"
 #include "player.hpp"
@@ -34,6 +38,8 @@ struct StepRecord {
 
 ostream &operator<<(ostream &out, const StepRecord &r);
 
+struct Option;
+
 struct RaceState {
   RaceCourse *course;
   Player players[2];
@@ -41,8 +47,8 @@ struct RaceState {
   double goalTime[2];
   list<StepRecord> records[2];
   RaceState(RaceCourse &course,
-	    string& player0, string &name0, FILE* logFile0,
-	    string &player1, string &name1, FILE* logFile1);
+	    string& player0, string &name0,
+	    string &player1, string &name1, const std::array<Option, 2>& options);
   bool playOneStep(int c);
 };
 

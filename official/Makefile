@@ -1,5 +1,5 @@
 CXXFLAGS= -pthread -std=c++11 -W -Wall -g -ggdb
-AM_LDFLAGS= -lboost_system$(BOOST_LIB_SUFFIX) -lboost_filesystem$(BOOST_LIB_SUFFIX)
+AM_LDFLAGS= -lboost_system$(BOOST_LIB_SUFFIX) -lboost_filesystem$(BOOST_LIB_SUFFIX) -lboost_program_options$(BOOST_LIB_SUFFIX)
 CXX= c++
 
 OBJECTS= main.o course.o raceState.o player.o

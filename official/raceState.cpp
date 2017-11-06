@@ -7,12 +7,13 @@ StepRecord::StepRecord(int step, PlayerState bfr, IntVec accel,
 
 
 RaceState::RaceState(RaceCourse &course,
-		     string &player0, string &name0, FILE* logFile0,
-		     string &player1, string &name1, FILE* logFile1):
+		     string &player0, string &name0,
+		     string &player1, string &name1,
+         const std::array<Option, 2>& options):
   course(&course),
   players{
-      Player(player0, course, course.startX[0], name0, logFile0),
-	Player(player1, course, course.startX[1], name1, logFile1)} {
+      Player(player0, course, course.startX[0], name0, options[0]),
+	Player(player1, course, course.startX[1], name1, options[1])} {
   goalTime[0] = goalTime[1] = 2*course.stepLimit;
   goaled[0] = goaled[1] = false;
 }
