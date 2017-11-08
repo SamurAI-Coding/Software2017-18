@@ -83,8 +83,8 @@ bool RaceCourse::collides(const LineSegment &m) const {
   return false;
 }
 
-Obstacle::ObstacleCol::ObstacleCol(bool outer) : DEFAULT(outer), cols(0), col({}) {}
-Obstacle::ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) : DEFAULT(true) {
+Obstacle::Obstacle_Impl::ObstacleCol::ObstacleCol(bool outer) : DEFAULT(outer), cols(0), col({}) {}
+Obstacle::Obstacle_Impl::ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) : DEFAULT(true) {
   cols = 0;
   col = {};
   for (const auto& v : tree) {
@@ -92,22 +92,22 @@ Obstacle::ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) : DE
     ++cols;
   }
 }
-bool Obstacle::ObstacleCol::operator[](int pos) const {
+bool Obstacle::Obstacle_Impl::ObstacleCol::operator[](int pos) const {
   if (0 <= pos && pos < cols) {
     return col[pos];
   }
   return DEFAULT;
 }
 
-Obstacle::Obstacle(const boost::property_tree::ptree& tree) : UNDER(true), OVER(false) {
+Obstacle::Obstacle_Impl::Obstacle_Impl(const boost::property_tree::ptree& tree) : UNDER(true), OVER(false) {
   rows = 0;
   raw = {};
   for (const auto& v : tree) {
-    raw.push_back(std::make_shared<Obstacle::ObstacleCol>(v.second));
+    raw.push_back(std::make_shared<Obstacle::Obstacle_Impl::ObstacleCol>(v.second));
     ++rows;
   }
 }
-const Obstacle::ObstacleCol& Obstacle::operator[](int pos) {
+const Obstacle::Obstacle_Impl::ObstacleCol& Obstacle::Obstacle_Impl::operator[](int pos) const {
   if (pos < 0) {
     return UNDER;
   }
@@ -115,6 +115,13 @@ const Obstacle::ObstacleCol& Obstacle::operator[](int pos) {
     return OVER;
   }
   return *raw[pos];
+}
+
+Obstacle::Obstacle(const boost::property_tree::ptree& tree) {
+  obstacle_ptr = std::make_shared<Obstacle::Obstacle_Impl>(tree);
+}
+const Obstacle::Obstacle_Impl::ObstacleCol& Obstacle::operator[](int pos) const {
+  return (*obstacle_ptr)[pos];
 }
 
 const string CourseDataFileType = "race course";
@@ -142,10 +149,10 @@ RaceCourse::RaceCourse(istream &in) {
       obstacle[x++][y] = (obst.second.get_value<int>() != 0);
     y++;
   }
-  _obstacle = std::unique_ptr<Obstacle>(new Obstacle(courseTree.get_child("obstacles")));
+  _obstacle = std::move(Obstacle(courseTree.get_child("obstacles")));
   for (int y = 0; y < length; ++y) {
     for (int x = 0; x < width; ++x) {
-      assert((*_obstacle)[y][x] == obstacle[x][y]);
+      assert(_obstacle[y][x] == obstacle[x][y]);
     }
   }
 }

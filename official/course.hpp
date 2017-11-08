@@ -26,25 +26,33 @@ struct IntVec {
 typedef IntVec Point;
 
 class Obstacle {
-public:
-  class ObstacleCol {
-  private:
-    const bool DEFAULT;
-    int cols;
-    std::vector<bool> col;
-  public:
-    ObstacleCol(bool outer);
-    ObstacleCol(const boost::property_tree::ptree& tree);
-    bool operator[](int pos) const;
-  };
 private:
-  const ObstacleCol UNDER;
-  const ObstacleCol OVER;
-  int rows;
-  std::vector<std::shared_ptr<ObstacleCol>> raw;
+  class Obstacle_Impl {
+  public:
+    class ObstacleCol {
+    private:
+      const bool DEFAULT;
+      int cols;
+      std::vector<bool> col;
+    public:
+      ObstacleCol(bool outer);
+      ObstacleCol(const boost::property_tree::ptree& tree);
+      bool operator[](int pos) const;
+    };
+  private:
+    const ObstacleCol UNDER;
+    const ObstacleCol OVER;
+    int rows;
+    std::vector<std::shared_ptr<ObstacleCol>> raw;
+  public:
+    Obstacle_Impl(const boost::property_tree::ptree& tree);
+    const Obstacle_Impl::ObstacleCol& operator[](int pos) const;
+  };
+  std::shared_ptr<Obstacle_Impl> obstacle_ptr;
 public:
   Obstacle(const boost::property_tree::ptree& tree);
-  const Obstacle::ObstacleCol& operator[](int pos);
+  const Obstacle::Obstacle_Impl::ObstacleCol& operator[](int pos) const;
+  Obstacle() = default;
 };
 
 struct LineSegment {
@@ -61,7 +69,7 @@ struct RaceCourse {
   int vision;
   int thinkTime, stepLimit;
   int startX[2];
-  std::unique_ptr<Obstacle> _obstacle;
+  Obstacle _obstacle;
   vector <vector <bool>> obstacle;
   RaceCourse(istream &in);
   bool collides(const LineSegment &m) const;
