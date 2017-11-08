@@ -61,6 +61,7 @@ struct RaceCourse {
   int vision;
   int thinkTime, stepLimit;
   int startX[2];
+  std::unique_ptr<Obstacle> _obstacle;
   vector <vector <bool>> obstacle;
   RaceCourse(istream &in);
   bool collides(const LineSegment &m) const;

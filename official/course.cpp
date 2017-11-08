@@ -103,13 +103,12 @@ Obstacle::Obstacle(const boost::property_tree::ptree& tree) : UNDER(true), OVER(
   rows = 0;
   raw = {};
   for (const auto& v : tree) {
-    Obstacle::ObstacleCol col(v.second);
-    raw.push_back(std::make_shared<Obstacle::ObstacleCol>(col));
+    raw.push_back(std::make_shared<Obstacle::ObstacleCol>(v.second));
     ++rows;
   }
 }
 const Obstacle::ObstacleCol& Obstacle::operator[](int pos) {
-  if (0 < pos) {
+  if (pos < 0) {
     return UNDER;
   }
   if (rows <= pos) {
@@ -142,6 +141,12 @@ RaceCourse::RaceCourse(istream &in) {
     for (auto &obst: row.second)
       obstacle[x++][y] = (obst.second.get_value<int>() != 0);
     y++;
+  }
+  _obstacle = std::unique_ptr<Obstacle>(new Obstacle(courseTree.get_child("obstacles")));
+  for (int y = 0; y < length; ++y) {
+    for (int x = 0; x < width; ++x) {
+      assert((*_obstacle)[y][x] == obstacle[x][y]);
+    }
   }
 }
 
