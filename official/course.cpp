@@ -83,6 +83,41 @@ bool RaceCourse::collides(const LineSegment &m) const {
   return false;
 }
 
+Obstacle::ObstacleCol::ObstacleCol(bool outer) : DEFAULT(outer), cols(0), col({}) {}
+Obstacle::ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) : DEFAULT(true) {
+  cols = 0;
+  col = {};
+  for (const auto& v : tree) {
+    col.push_back(v.second.get_value<int>() == 1);
+    ++cols;
+  }
+}
+bool Obstacle::ObstacleCol::operator[](int pos) const {
+  if (0 <= pos && pos < cols) {
+    return col[pos];
+  }
+  return DEFAULT;
+}
+
+Obstacle::Obstacle(const boost::property_tree::ptree& tree) : UNDER(true), OVER(false) {
+  rows = 0;
+  raw = {};
+  for (const auto& v : tree) {
+    Obstacle::ObstacleCol col(v.second);
+    raw.push_back(std::make_shared<Obstacle::ObstacleCol>(col));
+    ++rows;
+  }
+}
+const Obstacle::ObstacleCol& Obstacle::operator[](int pos) {
+  if (0 < pos) {
+    return UNDER;
+  }
+  if (rows <= pos) {
+    return OVER;
+  }
+  return *raw[pos];
+}
+
 const string CourseDataFileType = "race course";
 
 RaceCourse::RaceCourse(istream &in) {

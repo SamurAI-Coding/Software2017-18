@@ -25,6 +25,28 @@ struct IntVec {
 
 typedef IntVec Point;
 
+class Obstacle {
+public:
+  class ObstacleCol {
+  private:
+    const bool DEFAULT;
+    int cols;
+    std::vector<bool> col;
+  public:
+    ObstacleCol(bool outer);
+    ObstacleCol(const boost::property_tree::ptree& tree);
+    bool operator[](int pos) const;
+  };
+private:
+  const ObstacleCol UNDER;
+  const ObstacleCol OVER;
+  int rows;
+  std::vector<std::shared_ptr<ObstacleCol>> raw;
+public:
+  Obstacle(const boost::property_tree::ptree& tree);
+  const Obstacle::ObstacleCol& operator[](int pos);
+};
+
 struct LineSegment {
   Point p1, p2;
   LineSegment() {};
