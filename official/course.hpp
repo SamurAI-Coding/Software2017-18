@@ -25,34 +25,52 @@ struct IntVec {
 
 typedef IntVec Point;
 
+class ObstacleCol {
+private:
+  class ObstacleCol_Impl {
+  private:
+    using const_iterator = std::vector<bool>::const_iterator;
+    const bool DEFAULT;
+    int cols;
+    std::vector<bool> col;
+  public:
+    ObstacleCol_Impl(bool outer);
+    ObstacleCol_Impl(const boost::property_tree::ptree& tree);
+    bool operator[](int pos) const;
+    const_iterator begin() const;
+    const_iterator end() const;
+  };
+  std::shared_ptr<ObstacleCol_Impl> col_ptr;
+public:
+  ObstacleCol(bool outer);
+  ObstacleCol(const boost::property_tree::ptree& tree);
+  bool operator[](int pos) const;
+  decltype(col_ptr->begin()) begin() const;
+  decltype(col_ptr->end()) end() const;
+};
 class Obstacle {
 private:
   class Obstacle_Impl {
   public:
-    class ObstacleCol {
-    private:
-      const bool DEFAULT;
-      int cols;
-      std::vector<bool> col;
-    public:
-      ObstacleCol(bool outer);
-      ObstacleCol(const boost::property_tree::ptree& tree);
-      bool operator[](int pos) const;
-    };
   private:
+    using const_iterator = std::vector<ObstacleCol>::const_iterator;
     const ObstacleCol UNDER;
     const ObstacleCol OVER;
     int rows;
-    std::vector<std::shared_ptr<ObstacleCol>> raw;
+    std::vector<ObstacleCol> raw;
   public:
     Obstacle_Impl(const boost::property_tree::ptree& tree);
-    const Obstacle_Impl::ObstacleCol& operator[](int pos) const;
+    const ObstacleCol& operator[](int pos) const;
+    const_iterator begin() const;
+    const_iterator end() const;
   };
   std::shared_ptr<Obstacle_Impl> obstacle_ptr;
 public:
   Obstacle(const boost::property_tree::ptree& tree);
-  const Obstacle::Obstacle_Impl::ObstacleCol& operator[](int pos) const;
+  const ObstacleCol& operator[](int pos) const;
   Obstacle() = default;
+  decltype(obstacle_ptr->begin()) begin() const;
+  decltype(obstacle_ptr->end()) end() const;
 };
 
 struct LineSegment {

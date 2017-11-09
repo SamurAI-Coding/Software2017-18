@@ -83,8 +83,8 @@ bool RaceCourse::collides(const LineSegment &m) const {
   return false;
 }
 
-Obstacle::Obstacle_Impl::ObstacleCol::ObstacleCol(bool outer) : DEFAULT(outer), cols(0), col({}) {}
-Obstacle::Obstacle_Impl::ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) : DEFAULT(true) {
+ObstacleCol::ObstacleCol_Impl::ObstacleCol_Impl(bool outer) : DEFAULT(outer), cols(0), col({}) {}
+ObstacleCol::ObstacleCol_Impl::ObstacleCol_Impl(const boost::property_tree::ptree& tree) : DEFAULT(true) {
   cols = 0;
   col = {};
   for (const auto& v : tree) {
@@ -92,36 +92,70 @@ Obstacle::Obstacle_Impl::ObstacleCol::ObstacleCol(const boost::property_tree::pt
     ++cols;
   }
 }
-bool Obstacle::Obstacle_Impl::ObstacleCol::operator[](int pos) const {
+bool ObstacleCol::ObstacleCol_Impl::operator[](int pos) const {
   if (0 <= pos && pos < cols) {
     return col[pos];
   }
   return DEFAULT;
+}
+ObstacleCol::ObstacleCol_Impl::const_iterator ObstacleCol::ObstacleCol_Impl::begin() const {
+  return col.begin();
+}
+ObstacleCol::ObstacleCol_Impl::const_iterator ObstacleCol::ObstacleCol_Impl::end() const {
+  return col.end();
+}
+
+ObstacleCol::ObstacleCol(bool outer) {
+  col_ptr = std::make_shared<ObstacleCol_Impl>(outer);
+}
+ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) {
+  col_ptr = std::make_shared<ObstacleCol_Impl>(tree);
+}
+bool ObstacleCol::operator[](int pos) const {
+  return (*col_ptr)[pos];
+}
+decltype(ObstacleCol::col_ptr->begin()) ObstacleCol::begin() const {
+  return col_ptr->begin();
+}
+decltype(ObstacleCol::col_ptr->end()) ObstacleCol::end() const {
+  return col_ptr->end();
 }
 
 Obstacle::Obstacle_Impl::Obstacle_Impl(const boost::property_tree::ptree& tree) : UNDER(true), OVER(false) {
   rows = 0;
   raw = {};
   for (const auto& v : tree) {
-    raw.push_back(std::make_shared<Obstacle::Obstacle_Impl::ObstacleCol>(v.second));
+    raw.push_back(ObstacleCol(v.second));
     ++rows;
   }
 }
-const Obstacle::Obstacle_Impl::ObstacleCol& Obstacle::Obstacle_Impl::operator[](int pos) const {
+const ObstacleCol& Obstacle::Obstacle_Impl::operator[](int pos) const {
   if (pos < 0) {
     return UNDER;
   }
   if (rows <= pos) {
     return OVER;
   }
-  return *raw[pos];
+  return raw[pos];
+}
+Obstacle::Obstacle_Impl::const_iterator Obstacle::Obstacle_Impl::begin() const {
+  return raw.begin();
+}
+Obstacle::Obstacle_Impl::const_iterator Obstacle::Obstacle_Impl::end() const {
+  return raw.end();
 }
 
 Obstacle::Obstacle(const boost::property_tree::ptree& tree) {
-  obstacle_ptr = std::make_shared<Obstacle::Obstacle_Impl>(tree);
+  obstacle_ptr = std::make_shared<Obstacle_Impl>(tree);
 }
-const Obstacle::Obstacle_Impl::ObstacleCol& Obstacle::operator[](int pos) const {
+const ObstacleCol& Obstacle::operator[](int pos) const {
   return (*obstacle_ptr)[pos];
+}
+decltype(Obstacle::obstacle_ptr->begin()) Obstacle::begin() const {
+  return obstacle_ptr->begin();
+}
+decltype(Obstacle::obstacle_ptr->end()) Obstacle::end() const {
+  return obstacle_ptr->end();
 }
 
 const string CourseDataFileType = "race course";
