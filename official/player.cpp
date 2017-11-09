@@ -236,13 +236,12 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   sendToAI(toAI, stdinLogStream, "%d ", op.position.y);
   sendToAI(toAI, stdinLogStream, "%d ", op.velocity.x);
   sendToAI(toAI, stdinLogStream, "%d\n", op.velocity.y);
-  for (int y = position.y-course.vision;
-       y <= position.y+course.vision;
-       y++) {
-    for (int x = 0; x != course.width; x++) {
-      sendToAI(toAI, stdinLogStream, "%d ",
-         (y < 0 || y > course.length ||
-    course.obstacle[x][y] ? 1 : 0));
+  for (int dy = -course.vision; dy <= course.vision; ++dy) {
+    for (int x = 0; x < course.width; ++x) {
+      if (x) {
+        sendToAI(toAI, stdinLogStream, " ", 0);
+      }
+      sendToAI(toAI, stdinLogStream, "%d", course.obstacle[position.y + dy][x] ? 1 : 0);
     }
     sendToAI(toAI, stdinLogStream, "\n", 0);
   }

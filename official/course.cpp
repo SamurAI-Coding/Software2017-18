@@ -49,32 +49,32 @@ bool RaceCourse::collides(const LineSegment &m) const {
   int
     x1 = m.p1.x, y1 = m.p1.y,
     x2 = m.p2.x, y2 = m.p2.y;
-  if (obstacle[x2][y2]) return true;
+  if (obstacle[y2][x2]) return true;
   int xstep = x2 > x1 ? 1 : -1;
   if (y1 == y2) {
     for (int x = x1; x != x2; x += xstep) {
-      if (obstacle[x][y1]) return true;
+      if (obstacle[y1][x]) return true;
     }
     return false;
   }
   int ystep = y2 > y1 ? 1 : -1;
   if (x1 == x2) {
     for (int y = y1; y != y2; y += ystep) {
-      if (obstacle[x1][y]) return true;
+      if (obstacle[y][x1]) return true;
     }
     return false;
   }
-  for (int x = x1; x != x2; x += xstep) {
-    int nx = x + xstep;
-    for (int y = y1; y != y2; y += ystep) {
-      int ny = y + ystep;
-      if ((obstacle[x][y] && obstacle[nx][ny] &&
+  for (int y = y1; y != y2; y += ystep) {
+    int ny = y + ystep;
+    for (int x = x1; x != x2; x += xstep) {
+      int nx = x + xstep;
+      if ((obstacle[y][x] && obstacle[ny][nx] &&
 	   LineSegment(Point(x, y), Point(nx, ny)).intersects(m)) ||
-	  (obstacle[x][ny] && obstacle[nx][ny] &&
+	  (obstacle[ny][x] && obstacle[ny][nx] &&
 	   LineSegment(Point(x, ny), Point(nx, ny)).intersects(m)) ||
-	  (obstacle[nx][y] && obstacle[nx][ny] &&
+	  (obstacle[y][nx] && obstacle[ny][nx] &&
 	   LineSegment(Point(nx, y), Point(nx, ny)).intersects(m)) ||
-	  (obstacle[x][ny] && obstacle[nx][y] &&
+	  (obstacle[ny][x] && obstacle[y][nx] &&
 	   LineSegment(Point(x, ny), Point(nx, y)).intersects(m))) {
 	return true;
       }
@@ -174,21 +174,7 @@ RaceCourse::RaceCourse(istream &in) {
   stepLimit = courseTree.get<int>("stepLimit");
   startX[0] = courseTree.get<int>("x0");
   startX[1] = courseTree.get<int>("x1");
-  int y = 0;
-  obstacle = vector<vector<bool>>(width);
-  for (int x = 0; x != width; x++) obstacle[x] = vector<bool>(length);
-  for (auto &row: courseTree.get_child("obstacles")) {
-    int x = 0;
-    for (auto &obst: row.second)
-      obstacle[x++][y] = (obst.second.get_value<int>() != 0);
-    y++;
-  }
-  _obstacle = std::move(Obstacle(courseTree.get_child("obstacles")));
-  for (int y = 0; y < length; ++y) {
-    for (int x = 0; x < width; ++x) {
-      assert(_obstacle[y][x] == obstacle[x][y]);
-    }
-  }
+  obstacle = std::move(Obstacle(courseTree.get_child("obstacles")));
 }
 
 void IntVec::writeJson(ostream &out) {
@@ -201,15 +187,21 @@ void RaceCourse::writeJson(ostream &out) {
       << "   \"width\": " << width  << ", \"length\": " << length << ',' << endl
       << "   \"x0\": " << startX[0] << ", \"x1\": " << startX[1] << ',' << endl;
   out << "  \"obstacles\": [";
-  for (int y = 0; y != length; y++) {
-    out << "     [";
-    for (int x = 0; x != width; x++) {
-      out << (obstacle[x][y] ? '1' : '0')
-	  << (x == width-1 ? "" : ", ");
+  int i = 0;
+  for (const auto& col : obstacle) {
+    if (i++) {
+      out << ",";
+      out << endl;
     }
-    out << "]"
-	<< (y == length-1 ? "" : ",")
-	<< endl;
+    out << "     [";
+    int j = 0;
+    for (const auto& obs : col) {
+      if (j++) {
+        out << ", ";
+      }
+      out << (obs ? 1 : 0);
+    }
+    out << "]";
   }
   out << "]" << endl
       << "}" << endl;

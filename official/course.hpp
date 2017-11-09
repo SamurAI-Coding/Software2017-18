@@ -87,8 +87,7 @@ struct RaceCourse {
   int vision;
   int thinkTime, stepLimit;
   int startX[2];
-  Obstacle _obstacle;
-  vector <vector <bool>> obstacle;
+  Obstacle obstacle;
   RaceCourse(istream &in);
   bool collides(const LineSegment &m) const;
   void writeJson(ostream &out);
