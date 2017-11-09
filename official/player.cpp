@@ -54,9 +54,10 @@ static void handShake(std::unique_ptr<boost::process::ipstream> in, std::promise
 
 void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, std::shared_ptr<std::ofstream> stdinLogStream, const char *fmt, int value) {
   int n = std::snprintf(nullptr, 0, fmt, value);
-  auto cstr = new std::unique_ptr<char[]>(new char[n + 2]);
-  std::snprintf(cstr->get(), n + 1, fmt, value);
-  std::string str(cstr->get());
+  std::unique_ptr<char[]> cstr(new char[n + 2]);
+  std::memset(cstr.get(), 0, n + 2);
+  std::snprintf(cstr.get(), n + 1, fmt, value);
+  std::string str(cstr.get());
   *toAI << str;
   if (stdinLogStream.get() != nullptr) {
     *stdinLogStream << str;
