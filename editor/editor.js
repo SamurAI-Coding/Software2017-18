@@ -5,9 +5,10 @@ const editingCourseFileType = 'race course for editing';
 
 var mag = 1;
 const maxMag = 30;
+const minMag = 8;
 
 function gridX(x) { return mag*(x+0.5); }
-function gridY(y) { return mag*(course.length-y-0.5); }
+function gridY(y) { return mag*(course.length+course.vision-y+0.5); }
 function obstX(x) { return gridX(x); }
 function obstY(y) { return gridY(y); }
 
@@ -15,6 +16,7 @@ const meshStroke = 'black';
 const meshStrokeWidth = '1';
 
 const backgroundColor = 'lightgreen';
+const afterGoalColor = 'gray';
 const focusedFill = 'green';
 const obstacleFill = 'white';
 const obstacleOpacity = '0.5';
@@ -60,6 +62,14 @@ var course = {
   obstacles: []
 };
 
+function zoom(diff) {
+  var newMag = mag+diff;
+  if (newMag < minMag) return;
+  if (newMag > maxMag) return;
+  mag = newMag;
+  drawCourse();
+}
+
 function newCourse(evt) {
   startAnew = true;
   document.getElementById('sizeInputForm').style.display = 'block';
@@ -93,7 +103,7 @@ function sizeSet(evt) {
   course.obstacles.forEach(function (o) {
     o.forEach(function (p) {
       if (p.x > w) p.x = w;
-      if (p.y > l) p.y = l;
+      if (p.y > l+v) p.y = l+v;
     });
   });
   buildCourse();
@@ -153,7 +163,7 @@ function writeFile(evt) {
 
 function encodeCourse() {
   var obsts = [];
-  for (var y = 0; y != course.length; y++) {
+  for (var y = 0; y != course.length+course.vision+1; y++) {
     var o = [];
     for (var x = 0; x != course.width; x++) {
       o.push(obstacled[x][y] ? 1 : 0);
@@ -245,7 +255,7 @@ function moveVertex(evt) {
   var newy = originaly - Math.round((evt.clientY - starty)/mag);
   if ((focusedItem.point.x != newx || focusedItem.point.y != newy) &&
        0 <= newx && newx < course.width &&
-       0 <= newy && newy < course.length) {
+       0 <= newy && newy < course.length+course.vision+1) {
     focusedItem.point.x = newx;
     focusedItem.point.y = newy;
     reviseCourse();
@@ -373,24 +383,36 @@ function addStart(what, name) {
 
 function buildCourse() {
   svg = document.getElementById('course');
-  while (svg.firstChild) svg.removeChild(svg.firstChild);
   var svgWidth = svg.width.baseVal.value;
   if (!svgWidth) svgWidth = 1024;
   mag = Math.min(svgWidth/(course.width+2), maxMag);
+  drawCourse();
+}
+
+function drawCourse() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
   vertexRadius = Math.min(vertexMaxRadius, mag/2) - 1;
   gridDotRadius = mag*gridDotRadiusRatio;
-  svg.setAttribute('height', mag*(course.length+1));
+  svg.setAttribute('height', mag*(course.length+course.vision+1));
   ns = svg.namespaceURI;
   var bg = document.createElementNS(ns, 'rect');
   bg.setAttribute('x', 0);
-  bg.setAttribute('y', 0);
-  bg.setAttribute('width', mag*(course.width));
-  bg.setAttribute('height', svg.getAttribute('height'));
+  bg.setAttribute('y', mag*(course.vision+0.5));
+  bg.setAttribute('width', mag*course.width);
+  bg.setAttribute('height', mag*(course.length+0.5));
+  // bg.setAttribute('height', svg.getAttribute('height'));
   bg.style.fill = backgroundColor;
   svg.appendChild(bg);
+  var ag = document.createElementNS(ns, 'rect');
+  ag.setAttribute('x', 0);
+  ag.setAttribute('y', mag*(-0.5));
+  ag.setAttribute('width', mag*course.width);
+  ag.setAttribute('height', mag*(course.vision+1));
+  ag.style.fill = afterGoalColor;
+  svg.appendChild(ag);
   courseElements = document.createElementNS(ns, 'g');
   var invisCircles = document.createElementNS(ns, 'g');
-  for (var y = 0; y != course.length; y++) {
+  for (var y = 0; y != course.length+course.vision+1; y++) {
     for (var x = 0; x != course.width; x++) {
       var invis = document.createElementNS(ns, 'circle');
       invis.setAttribute('cx', obstX(x));
@@ -438,6 +460,7 @@ function covers(p, x, y) {
 }
 
 var obstacled;
+var afterGoal;
 
 function placeObstacle(obst) {
   const BIG = 1e99;
@@ -446,7 +469,7 @@ function placeObstacle(obst) {
     minx = Math.min(p.x, minx); maxx = Math.max(p.x, maxx);
     miny = Math.min(p.y, miny); maxy = Math.max(p.y, maxy);
   });
-  for (var y = miny; y <= maxy; y++) {
+  for (var y = miny; y <= maxy+course.vision+1; y++) {
     for (var x = minx; x <= maxx; x++) {
       if (covers(obst, x, y)) obstacled[x][y] = true;
     }
@@ -506,14 +529,14 @@ function reviseCourse() {
   obstacled = [];
   for (var x = 0; x != course.width; x++) {
     obstacled[x] = [];
-    for (var y = 0; y != course.length; y++) {
+    for (var y = 0; y != course.length+course.vision; y++) {
       obstacled[x][y] = false;
     }
     obstacled[x][-1] = true;
-    obstacled[x][course.length] = true;
+    obstacled[x][course.length+course.vision+1] = true;
   }
   course.obstacles.forEach(function (o) { placeObstacle(o); });
-  for (var y = 0; y != course.length-1; y++) {
+  for (var y = 0; y != course.length+course.vision; y++) {
     for (var x = 1; x != course.width; x++) {
       var nw = (obstacled[x-1][y+1]);
       var sw = (obstacled[x-1][y]);
@@ -538,7 +561,7 @@ function reviseCourse() {
       }
     }
   }
-  for (var y = 0; y != course.length; y++) {
+  for (var y = 0; y != course.length+course.vision+1; y++) {
     for (var x = 0; x != course.width; x++) {
       var dot = document.createElementNS(ns, 'circle');
       dot.setAttribute('cx', gridX(x));
