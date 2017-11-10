@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
+#include <cinttypes>
 #include <boost/optional.hpp>
 
 #include "course.hpp"
@@ -52,11 +53,12 @@ static void handShake(std::unique_ptr<boost::process::ipstream> in, std::promise
   p.set_value(make_pair(std::move(in), ans));
 }
 
-void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, std::shared_ptr<std::ofstream> stdinLogStream, const char *fmt, int value) {
-  int n = std::snprintf(nullptr, 0, fmt, value);
+template <class... Args>
+void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, std::shared_ptr<std::ofstream> stdinLogStream, const char *fmt, Args... args) {
+  int n = std::snprintf(nullptr, 0, fmt, args...);
   std::unique_ptr<char[]> cstr(new char[n + 2]);
   std::memset(cstr.get(), 0, n + 2);
-  std::snprintf(cstr.get(), n + 1, fmt, value);
+  std::snprintf(cstr.get(), n + 1, fmt, args...);
   std::string str(cstr.get());
   *toAI << str;
   if (stdinLogStream.get() != nullptr) {
@@ -69,13 +71,13 @@ void flushToAI(std::unique_ptr<boost::process::opstream>& toAI, std::shared_ptr<
   if (stdinLogStream.get() != nullptr) stdinLogStream->flush();
 }
 
-static void logging(std::promise<void> promise, std::unique_ptr<std::istream> input, std::shared_ptr<std::ostream> output, int MAX_SIZE) {
+static void logging(std::promise<void> promise, std::unique_ptr<std::istream> input, std::shared_ptr<std::ostream> output, std::shared_ptr<std::mutex> mutex, int MAX_SIZE) {
   if (output) {
     int size = 0;
     for (; MAX_SIZE == -1 || size < MAX_SIZE; ++size) {
       char c;
       if (input->get(c)) {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(*mutex);
         *output << c;
       } else {
         break;
@@ -89,14 +91,14 @@ static void logging(std::promise<void> promise, std::unique_ptr<std::istream> in
   promise.set_value();
 }
 
-Logger::Logger(std::unique_ptr<std::istream> input, std::shared_ptr<std::ostream> output, int MAX_SIZE = -1) {
+Logger::Logger(std::unique_ptr<std::istream> input, std::shared_ptr<std::ostream> output, int MAX_SIZE = -1) : mutex(new std::mutex) {
   std::promise<void> promise;
   future = promise.get_future();
-  thread = std::thread(logging, std::move(promise), std::move(input), output, MAX_SIZE);
+  thread = std::thread(logging, std::move(promise), std::move(input), output, mutex, MAX_SIZE);
 }
 
 Logger::~Logger() {
-  mutex.unlock();
+  mutex->unlock();
   future.wait_for(std::chrono::milliseconds(100));
   thread.join();
 }
@@ -140,7 +142,7 @@ Player::Player(string command, const RaceCourse &course, int xpos,
   auto timeUsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   timeLeft -= timeUsed;
   thread.join();
-  stderrLogger->mutex.lock();
+  stderrLogger->mutex->lock();
   if (stderrLogStream) {
     *stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
   }
@@ -227,7 +229,7 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
     *stderrLogStream << "[system] turn: " << c << std::endl;
   }
   sendToAI(toAI, stdinLogStream, "%d\n", c);
-  sendToAI(toAI, stdinLogStream, "%d\n", timeLeft);
+  sendToAI(toAI, stdinLogStream, "%" PRId64 "\n", timeLeft);
   sendToAI(toAI, stdinLogStream, "%d ", position.x);
   sendToAI(toAI, stdinLogStream, "%d ", position.y);
   sendToAI(toAI, stdinLogStream, "%d ", velocity.x);
@@ -248,7 +250,7 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   flushToAI(toAI, stdinLogStream);
   std::promise<std::pair<std::unique_ptr<boost::process::ipstream>, Message4Act>> promise;
   std::future<std::pair<std::unique_ptr<boost::process::ipstream>, Message4Act>> future = promise.get_future();
-  stderrLogger->mutex.unlock();
+  stderrLogger->mutex->unlock();
   if (resumeCommand) {
     std::error_code ec;
     int result = boost::process::system(resumeCommand.get(), ec);
@@ -262,7 +264,7 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   auto timeUsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   timeLeft -= timeUsed;
   thread.join();
-  stderrLogger->mutex.lock();
+  stderrLogger->mutex->lock();
   if (stderrLogStream) {
     *stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
   }
