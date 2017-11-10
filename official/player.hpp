@@ -26,7 +26,7 @@ private:
   std::thread thread;
   std::future<void> future;
 public:
-  std::mutex mutex;
+  std::shared_ptr<std::mutex> mutex;
   Logger(std::unique_ptr<std::istream> input, std::shared_ptr<std::ostream> output, int MAX_SIZE);
   ~Logger();
 };
@@ -38,7 +38,7 @@ struct Player {
   string name;
   Point position;
   IntVec velocity;
-  int timeLeft;
+  int64_t timeLeft;
   Status status;
   std::shared_ptr<std::ofstream> stdinLogStream;
   std::shared_ptr<std::ofstream> stderrLogStream;
