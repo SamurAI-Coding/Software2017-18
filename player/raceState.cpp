@@ -49,60 +49,113 @@ bool Course::obstacled(const Point &from, const Point &to) const {
   int
     x1 = from.x, y1 = from.y,
     x2 = to.x, y2 = to.y;
-  if (x2 < 0 || width <= x2 || y2 < 0) return true;
-  if (y2 <= length && obstacle[x2][y2] == OBSTACLE) return true;
-  int xstep, xstart, xend;
-  if (x1 < x2) {
-    xstep = 1; xstart = max(0, x1); xend = min(width, x2);
-  } else {
-    xstep = -1; xstart = min(width, x1); xend = max(0, x2);
-  }
+  if (obstacle[y2][x2] == ObstState::OBSTACLE) return true;
+  int xstep = x2 > x1 ? 1 : -1;
   if (y1 == y2) {
-    for (int x = xstart; x != xend; x += xstep) {
-      if (obstacle[x][y1] == OBSTACLE) return true;
+    for (int x = x1; x != x2; x += xstep) {
+      if (obstacle[y1][x] == ObstState::OBSTACLE) return true;
     }
     return false;
   }
-  int ystep, ystart, yend;
-  if (y1 < y2) {
-    ystep = 1; ystart = max(0, y1); yend = min(length, y2);
-  } else {
-    ystep = -1; ystart = min(length, y1); yend = max(0, y2);
-  }
+  int ystep = y2 > y1 ? 1 : -1;
   if (x1 == x2) {
-    for (int y = ystart; y != yend; y += ystep) {
-      if (obstacle[x1][y] == OBSTACLE) return true;
+    for (int y = y1; y != y2; y += ystep) {
+      if (obstacle[y][x1] == ObstState::OBSTACLE) return true;
     }
     return false;
   }
-  for (int x = xstart; x != xend; x += xstep) {
-    int nx = x + xstep;
-    for (int y = ystart; y != yend; y += ystep) {
-      int ny = y + ystep;
-      if ((obstacle[x][y] == OBSTACLE && obstacle[nx][ny] == OBSTACLE &&
-	   LineSegment(Point(x, y), Point(nx, ny)).intersects(m)) ||
-	  (obstacle[x][ny] == OBSTACLE && obstacle[nx][ny] == OBSTACLE &&
-	   LineSegment(Point(x, ny), Point(nx, ny)).intersects(m)) ||
-	  (obstacle[nx][y] == OBSTACLE && obstacle[nx][ny] == OBSTACLE &&
-	   LineSegment(Point(nx, y), Point(nx, ny)).intersects(m)) ||
-	  (obstacle[x][ny] == OBSTACLE && obstacle[nx][y] == OBSTACLE &&
-	   LineSegment(Point(x, ny), Point(nx, y)).intersects(m))) {
-	return true;
+  for (int y = y1; y != y2; y += ystep) {
+    int ny = y + ystep;
+    for (int x = x1; x != x2; x += xstep) {
+      int nx = x + xstep;
+      if ((obstacle[y][x] == ObstState::OBSTACLE && obstacle[ny][nx] == ObstState::OBSTACLE &&
+     LineSegment(Point(x, y), Point(nx, ny)).intersects(m)) ||
+    (obstacle[ny][x] == ObstState::OBSTACLE && obstacle[ny][nx] == ObstState::OBSTACLE &&
+     LineSegment(Point(x, ny), Point(nx, ny)).intersects(m)) ||
+    (obstacle[y][nx] == ObstState::OBSTACLE && obstacle[ny][nx] == ObstState::OBSTACLE &&
+     LineSegment(Point(nx, y), Point(nx, ny)).intersects(m)) ||
+    (obstacle[ny][x] == ObstState::OBSTACLE && obstacle[y][nx] == ObstState::OBSTACLE &&
+     LineSegment(Point(x, ny), Point(nx, y)).intersects(m))) {
+  return true;
       }
     }
   }
   return false;
 }
 
+ObstacleCol::ObstacleCol(ObstState obs, int size) : cols(size) {
+  for (int i = 0; i < cols; ++i) {
+    col.push_back(obs);
+  }
+}
+ObstacleCol::ObstacleCol(const std::vector<int>& arr) {
+  cols = 0;
+  col = {};
+  for (const auto& v : arr) {
+    col.push_back(v == 1 ? ObstState::OBSTACLE : ObstState::NONE);
+    ++cols;
+  }
+}
+ObstState ObstacleCol::operator[](int pos) const {
+  if (0 <= pos && pos < cols) {
+    return col[pos];
+  }
+  return ObstState::OBSTACLE;
+}
+ObstacleCol::const_iterator ObstacleCol::begin() const {
+  return col.begin();
+}
+ObstacleCol::const_iterator ObstacleCol::end() const {
+  return col.end();
+}
+
+Obstacle::Obstacle_Impl::Obstacle_Impl(int width) : UNDER(ObstState::OBSTACLE, width), UNKNOWN(ObstState::UNKNOWN, width), rows(0), raw(){}
+const ObstacleCol& Obstacle::Obstacle_Impl::operator[](int pos) const {
+  if (pos < 0) {
+    return UNDER;
+  }
+  auto ite = raw.find(pos);
+  if (ite != raw.end()) {
+    return ite->second;
+  } else {
+    return UNKNOWN;
+  }
+}
+Obstacle::Obstacle_Impl::const_iterator Obstacle::Obstacle_Impl::begin() const {
+  return raw.begin();
+}
+Obstacle::Obstacle_Impl::const_iterator Obstacle::Obstacle_Impl::end() const {
+  return raw.end();
+}
+void Obstacle::Obstacle_Impl::put(int y, const std::vector<int>& arr) {
+  if (y < 0) {
+    return;
+  }
+  if (raw.count(y)) {
+    return;
+  }
+  raw[y] = ObstacleCol(arr);
+}
+
+Obstacle::Obstacle(int width) {
+  obstacle_ptr = std::make_shared<Obstacle_Impl>(width);
+}
+const ObstacleCol& Obstacle::operator[](int pos) const {
+  return (*obstacle_ptr)[pos];
+}
+decltype(Obstacle::obstacle_ptr->begin()) Obstacle::begin() const {
+  return obstacle_ptr->begin();
+}
+decltype(Obstacle::obstacle_ptr->end()) Obstacle::end() const {
+  return obstacle_ptr->end();
+}
+void Obstacle::put(int y, const std::vector<int>& arr) {
+  obstacle_ptr->put(y, arr);
+}
+
 Course::Course(istream &in) {
   in >> thinkTime >> stepLimit>> width >> length >> vision;
-  obstacle = vector<vector<ObstState>>(width);
-  for (int x = 0; x != width; x++) {
-    obstacle[x] = vector<ObstState>(length + 1);
-    for (int y = 0; y <= length; y++) {
-      obstacle[x][y] = UNKNOWN;
-    }
-  }
+  obstacle = Obstacle(width);
 }
 
 RaceState::RaceState(istream &in, Course &course) {
@@ -115,11 +168,11 @@ RaceState::RaceState(istream &in, Course &course) {
   for (int y = position.y - course.vision;
        y <= position.y + course.vision;
        y++) {
+    std::vector<int> arr;
     for (int x = 0; x != course.width; x++) {
       int o; in >> o;
-      if (y >= 0 && y <= course.length) {
-	course.obstacle[x][y] = (o == 0 ? NONE : OBSTACLE);
-      }
+      arr.push_back(o);
     }
+    course.obstacle.put(y, arr);
   }
 }

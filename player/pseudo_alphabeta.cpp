@@ -34,11 +34,6 @@ std::ostream& operator<<(std::ostream& out, const PlayerState& ps)
   return out << "{" << ps.position << ", " << ps.velocity << "}";
 }
 
-static bool is_out(const Point& p, const Course& c)
-{
-  return p.x < 0 || c.width <= p.x || p.y < 0;
-}
-
 map<Point, int> bfsed;
 using History = vector<pair<int, int>>;
 
@@ -108,14 +103,12 @@ static pair<long long, IntVec> alpha_beta(const RaceState& rs, const Course& cou
           nextRv.position.y += nextRv.velocity.y;
           const LineSegment enMove(rv.position, nextRv.position);
           bool stopped = false;
-          if (is_out(nextMe.position, course)
-            || course.obstacled(me.position, nextMe.position)
+          if (course.obstacled(me.position, nextMe.position)
             || myMove.goesThru(rv.position)) {
             nextMe.position = me.position;
             stopped |= true;
           }
           if (rv.position.y >= course.length
-            || is_out(nextRv.position, course)
             || course.obstacled(rv.position, nextRv.position)
             || enMove.goesThru(me.position)) {
             nextRv.position = rv.position;
@@ -189,8 +182,7 @@ pair<int, IntVec> dls(const Point& p, const IntVec v, const Point rvp, const Cou
       }
       done.insert(nv);
       const LineSegment move(p, np);
-      if (is_out(np, course)
-        || course.obstacled(p, np)
+      if (course.obstacled(p, np)
         || move.goesThru(rvp)) {
         const auto& ret = dls(p, nv, rvp, course, depth - 1, done);
         if (ret.first < best) {
@@ -199,7 +191,7 @@ pair<int, IntVec> dls(const Point& p, const IntVec v, const Point rvp, const Cou
         }
       }
       else {
-        if (np.y > course.length) {
+        if (np.y >= course.length) {
           best = -1;
           bestAction = { dx, dy };
         }
@@ -229,9 +221,9 @@ static void bfs(const RaceState& rs, const Course& course)
 {
   bfsed.clear();
   queue<Point> queue;
-  const int ymax = min(course.length, rs.position.y + course.vision);
+  const int ymax = rs.position.y + course.vision;
   for (int x = 0; x < course.width; ++x) {
-    if (course.obstacle[x][ymax] == OBSTACLE) {
+    if (course.obstacle[ymax][x] == ObstState::OBSTACLE) {
       continue;
     }
     queue.push(Point(x, ymax));
@@ -250,7 +242,7 @@ static void bfs(const RaceState& rs, const Course& course)
       int nx = d.first + p.x;
       int ny = d.second + p.y;
       Point np(nx, ny);
-      if (is_out(np, course) || ny > course.length || course.obstacle[nx][ny] != NONE) {
+      if (ny > course.length + course.vision || course.obstacle[ny][nx] != ObstState::NONE) {
         continue;
       }
       if (bfsed.count(np)) {
