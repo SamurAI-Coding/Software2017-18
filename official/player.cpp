@@ -54,9 +54,10 @@ static void handShake(std::unique_ptr<boost::process::ipstream> in, std::promise
 
 void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, std::shared_ptr<std::ofstream> stdinLogStream, const char *fmt, int value) {
   int n = std::snprintf(nullptr, 0, fmt, value);
-  auto cstr = new std::unique_ptr<char[]>(new char[n + 2]);
-  std::snprintf(cstr->get(), n + 1, fmt, value);
-  std::string str(cstr->get());
+  std::unique_ptr<char[]> cstr(new char[n + 2]);
+  std::memset(cstr.get(), 0, n + 2);
+  std::snprintf(cstr.get(), n + 1, fmt, value);
+  std::string str(cstr.get());
   *toAI << str;
   if (stdinLogStream.get() != nullptr) {
     *stdinLogStream << str;
@@ -235,13 +236,12 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   sendToAI(toAI, stdinLogStream, "%d ", op.position.y);
   sendToAI(toAI, stdinLogStream, "%d ", op.velocity.x);
   sendToAI(toAI, stdinLogStream, "%d\n", op.velocity.y);
-  for (int y = position.y-course.vision;
-       y <= position.y+course.vision;
-       y++) {
-    for (int x = 0; x != course.width; x++) {
-      sendToAI(toAI, stdinLogStream, "%d ",
-         (y < 0 || y > course.length ||
-    course.obstacle[x][y] ? 1 : 0));
+  for (int dy = -course.vision; dy <= course.vision; ++dy) {
+    for (int x = 0; x < course.width; ++x) {
+      if (x) {
+        sendToAI(toAI, stdinLogStream, " ", 0);
+      }
+      sendToAI(toAI, stdinLogStream, "%d", course.obstacle[position.y + dy][x] ? 1 : 0);
     }
     sendToAI(toAI, stdinLogStream, "\n", 0);
   }
