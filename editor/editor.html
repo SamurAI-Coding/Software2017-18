@@ -6,6 +6,10 @@
     <script src="editor.js"></script>
   </head>
   <body onresize="windowResized()">
+    <input type="image" height="16" width="16"
+	   src="icons/zoom_in.png" onclick="zoom(+1)">
+    <input type="image" height="16" width="16"
+	   src="icons/zoom_out.png" onclick="zoom(-1)">
     <button onclick="newCourse(event)">New</button>
     <button onclick="document.getElementById('fileInput').click();"
 	    value="/home/takashi/Downloads/sample.json">Load</button>
