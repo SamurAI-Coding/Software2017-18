@@ -173,18 +173,6 @@ RaceCourse::RaceCourse(istream &in) {
   startX[0] = courseTree.get<int>("x0");
   startX[1] = courseTree.get<int>("x1");
   obstacle = std::move(Obstacle(courseTree.get_child("obstacles")));
-  cerr << "     ";
-  for (int x = -3; x <= width + 3; ++x) {
-    cerr << setw(3) << x;
-  }
-  cerr << endl;
-  for (int y = length + 8; -8 <= y; --y) {
-    cerr << setw(3) << y << ": ";
-    for (int x = -3; x <= width + 3; ++x) {
-      cerr << setw(3) << (obstacle[y][x] ? "*" : (y == length ? "=" : " "));
-    }
-    cerr << endl;
-  }
 }
 
 void IntVec::writeJson(ostream &out) {
