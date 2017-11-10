@@ -27,31 +27,19 @@ typedef IntVec Point;
 
 class ObstacleCol {
 private:
-  class ObstacleCol_Impl {
-  private:
-    using const_iterator = std::vector<bool>::const_iterator;
-    const bool DEFAULT;
-    int cols;
-    std::vector<bool> col;
-  public:
-    ObstacleCol_Impl(bool outer);
-    ObstacleCol_Impl(const boost::property_tree::ptree& tree);
-    bool operator[](int pos) const;
-    const_iterator begin() const;
-    const_iterator end() const;
-  };
-  std::shared_ptr<ObstacleCol_Impl> col_ptr;
+  using const_iterator = std::vector<bool>::const_iterator;
+  int cols;
+  std::vector<bool> col;
 public:
-  ObstacleCol(bool outer);
+  ObstacleCol(bool obs, size_t size);
   ObstacleCol(const boost::property_tree::ptree& tree);
   bool operator[](int pos) const;
-  decltype(col_ptr->begin()) begin() const;
-  decltype(col_ptr->end()) end() const;
+  const_iterator begin() const;
+  const_iterator end() const;
 };
 class Obstacle {
 private:
   class Obstacle_Impl {
-  public:
   private:
     using const_iterator = std::vector<ObstacleCol>::const_iterator;
     const ObstacleCol UNDER;

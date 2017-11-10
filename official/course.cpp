@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stdexcept>
 #include "course.hpp"
 
 static int dot(int x1, int y1, int x2, int y2) {
@@ -83,8 +84,12 @@ bool RaceCourse::collides(const LineSegment &m) const {
   return false;
 }
 
-ObstacleCol::ObstacleCol_Impl::ObstacleCol_Impl(bool outer) : DEFAULT(outer), cols(0), col({}) {}
-ObstacleCol::ObstacleCol_Impl::ObstacleCol_Impl(const boost::property_tree::ptree& tree) : DEFAULT(true) {
+ObstacleCol::ObstacleCol(bool obs, size_t size) : cols((int)size) {
+  for (int i = 0; i < cols; ++i) {
+    col.push_back(obs);
+  }
+}
+ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) {
   cols = 0;
   col = {};
   for (const auto& v : tree) {
@@ -92,39 +97,32 @@ ObstacleCol::ObstacleCol_Impl::ObstacleCol_Impl(const boost::property_tree::ptre
     ++cols;
   }
 }
-bool ObstacleCol::ObstacleCol_Impl::operator[](int pos) const {
+bool ObstacleCol::operator[](int pos) const {
   if (0 <= pos && pos < cols) {
     return col[pos];
   }
-  return DEFAULT;
+  return true;
 }
-ObstacleCol::ObstacleCol_Impl::const_iterator ObstacleCol::ObstacleCol_Impl::begin() const {
+ObstacleCol::const_iterator ObstacleCol::begin() const {
   return col.begin();
 }
-ObstacleCol::ObstacleCol_Impl::const_iterator ObstacleCol::ObstacleCol_Impl::end() const {
+ObstacleCol::const_iterator ObstacleCol::end() const {
   return col.end();
 }
 
-ObstacleCol::ObstacleCol(bool outer) {
-  col_ptr = std::make_shared<ObstacleCol_Impl>(outer);
-}
-ObstacleCol::ObstacleCol(const boost::property_tree::ptree& tree) {
-  col_ptr = std::make_shared<ObstacleCol_Impl>(tree);
-}
-bool ObstacleCol::operator[](int pos) const {
-  return (*col_ptr)[pos];
-}
-decltype(ObstacleCol::col_ptr->begin()) ObstacleCol::begin() const {
-  return col_ptr->begin();
-}
-decltype(ObstacleCol::col_ptr->end()) ObstacleCol::end() const {
-  return col_ptr->end();
-}
-
-Obstacle::Obstacle_Impl::Obstacle_Impl(const boost::property_tree::ptree& tree) : UNDER(true), OVER(false) {
+Obstacle::Obstacle_Impl::Obstacle_Impl(const boost::property_tree::ptree& tree)
+    : UNDER(true, tree.size() ? tree.front().second.size() : 0),
+      OVER(false, tree.size() ? tree.front().second.size() : 0) {
+  if (tree.size() == 0) {
+    throw std::invalid_argument("raw size is zero");
+  }
+  const size_t cols = tree.front().second.size();
   rows = 0;
   raw = {};
   for (const auto& v : tree) {
+    if (v.second.size() != cols) {
+      throw std::invalid_argument("not all col size is equal");
+    }
     raw.push_back(ObstacleCol(v.second));
     ++rows;
   }
@@ -175,6 +173,18 @@ RaceCourse::RaceCourse(istream &in) {
   startX[0] = courseTree.get<int>("x0");
   startX[1] = courseTree.get<int>("x1");
   obstacle = std::move(Obstacle(courseTree.get_child("obstacles")));
+  cerr << "     ";
+  for (int x = -3; x <= width + 3; ++x) {
+    cerr << setw(3) << x;
+  }
+  cerr << endl;
+  for (int y = length + 8; -8 <= y; --y) {
+    cerr << setw(3) << y << ": ";
+    for (int x = -3; x <= width + 3; ++x) {
+      cerr << setw(3) << (obstacle[y][x] ? "*" : (y == length ? "=" : " "));
+    }
+    cerr << endl;
+  }
 }
 
 void IntVec::writeJson(ostream &out) {
