@@ -11,17 +11,19 @@ var gameLength;
 const raceLogFileType = 'race log';
 
 var mag = 1;
+var ylimit;
 const xmargin = 10;
 const ymargin = 10;
 var fieldHeight;
 var fieldWidth;
 
 function gridX(x, y) { return mag*(x+0.5)+xmargin; }
-function gridY(x, y) { return mag*(course.length-y)+ymargin; }
+function gridY(x, y) { return mag*(ylimit-y)+ymargin; }
 function obstX(x, y) { return gridX(x, y); }
 function obstY(x, y) { return gridY(x, y); }
 
 const backgroundColor = 'lightgreen';
+const afterGoalColor = 'lightgray';
 const goalLineColor = 'white';
 const focusedFill = 'yellow';
 const obstacleFill = 'brown';
@@ -67,6 +69,13 @@ function loadFile(evt) {
       }
       raceLog = newLog;
       course = raceLog.course;
+      ylimit = course.length;
+      for (var y = course.length+1; y < course.obstacles.length; y++) {
+	var obsts = course.obstacles[y];
+	for (var x = 0; x != obsts.length; x++) {
+	  if (obsts[x] != 0 && y > ylimit) ylimit = y;
+	}
+      }
       gameLength = Math.max(raceLog.log0.length, raceLog.log1.length);
       for (var p = 0; p != 2; p++) {
 	var name = raceLog['name'+p];
@@ -105,7 +114,7 @@ function makePlayerIcon(player) {
   player.body = body;
   g.appendChild(body);
   player.icon = g;
-  field.appendChild(g);
+  courseDef.appendChild(g);
   var moveDot = document.createElementNS(ns, 'circle');
   moveDot.setAttribute('r', moveDotRadius);
   moveDot.style.fill = moveDotFill[player.id];
@@ -242,7 +251,7 @@ function drawCourse() {
   svgHeight = svg.height.baseVal.value;
   // The overview image should fit in the SVG
   var overviewPitch =
-      Math.min(svgHeight/(course.length+1),
+      Math.min(svgHeight/(ylimit),
 	       0.3*svgWidth/(course.width+1));
   var overviewWidth = overviewPitch*(course.width+1);
   // The rest of the space is used by the magnified display
@@ -262,12 +271,19 @@ function drawCourse() {
   defs.appendChild(courseFig);
   var bg = document.createElementNS(ns, 'rect');
   bg.setAttribute('x', xmargin);
-  bg.setAttribute('y', ymargin);
+  bg.setAttribute('y', mag*(ylimit-course.length)+ymargin);
   bg.setAttribute('width', mag*course.width);
   bg.setAttribute('height', mag*(course.length+1));
   bg.style.fill = backgroundColor;
   courseFig.appendChild(bg);
-  for (var y = 0; y != course.length-1; y++) {
+  var ag = document.createElementNS(ns, 'rect');
+  ag.setAttribute('x', xmargin);
+  ag.setAttribute('y', ymargin);
+  ag.setAttribute('width', mag*course.width);
+  ag.setAttribute('height', mag*(ylimit-course.length));
+  ag.style.fill = afterGoalColor;
+  courseFig.appendChild(ag);
+  for (var y = 0; y != ylimit-1; y++) {
     for (var x = 1; x != course.width; x++) {
       var nw = (course.obstacles[y+1][x-1]);
       var sw = (course.obstacles[y][x-1]);
@@ -293,7 +309,7 @@ function drawCourse() {
     }
   }
   for (var x = 0; x != course.width; x++) {
-    for (var y = 0; y != course.length; y++) {
+    for (var y = 0; y != ylimit; y++) {
       var dot = document.createElementNS(ns, 'circle');
       dot.setAttribute('cx', gridX(x, y));
       dot.setAttribute('cy', gridY(x, y));
@@ -312,10 +328,10 @@ function drawCourse() {
   startLine.style['stroke-width'] = 0.1*mag;
   courseFig.appendChild(startLine);
   var goalLine = document.createElementNS(ns, 'line');
-  goalLine.setAttribute('x1', gridX(-0.5, course.length-1));
-  goalLine.setAttribute('y1', gridY(-0.5, course.length-1));
-  goalLine.setAttribute('x2', gridX(course.width-0.5, course.length-1));
-  goalLine.setAttribute('y2', gridY(course.width-0.5, course.length-1));
+  goalLine.setAttribute('x1', gridX(-0.5, course.length));
+  goalLine.setAttribute('y1', gridY(-0.5, course.length));
+  goalLine.setAttribute('x2', gridX(course.width-0.5, course.length));
+  goalLine.setAttribute('y2', gridY(course.width-0.5, course.length));
   goalLine.style.stroke = goalLineColor;
   goalLine.style['stroke-width'] = 0.1*mag;
   courseFig.appendChild(goalLine);
@@ -339,7 +355,7 @@ function drawCourse() {
 
 var timerPlay = -1;
 
-var viewOption = "buttom";
+var viewOption = "bottom";
 function changeViewOption(obj) {
   const start = timerPlay != -1;
   if (start) {
@@ -462,27 +478,16 @@ function setStep(c) {
     miny = Math.min(last, miny);
     maxy = Math.max(last, maxy);
   }
-  var offset;
-  switch (viewOption) {
-    case "top":
-      offset= mag * (course.length + 1 - maxy) - svgHeight;
-      break;
-    case "player0":
-      offset= mag * (course.length + 1 - Math.min(before0, after0)) - svgHeight;
-      break;
-    case "player1":
-      offset= mag * (course.length + 1 - Math.min(before1, after1)) - svgHeight;
-      break;
-    default:
-      console.log("viewOption value : " + viewOption + " is funny.  call staff.");
-    case "buttom":
-      offset = mag * (course.length + 1 - miny) - svgHeight;
-  }
-  offset = Math.min(mag * (course.length + 1) - svgHeight, offset);
-  offset = Math.max(0, offset);
+  var focusY = {
+    "top": maxy,
+    "bottom": miny,
+    "player0": Math.min(before0, after0),
+    "player1": Math.min(before1, after1)
+  }[viewOption];
+  var offset = Math.max(svgHeight, gridY(0, focusY-1));
   field.setAttribute(
     'viewBox',
-    "0,"+offset+","+fieldWidth+","+svgHeight);
+    "0,"+(offset-svgHeight)+","+fieldWidth+","+svgHeight);
   return true;
 }
 
