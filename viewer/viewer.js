@@ -53,6 +53,12 @@ var moveDotRadius;
 var players = [];
 var moveTrace;
 
+const logoWidth = 4;
+const logoHeight = 2;
+const logoMargin = 0.1;
+const logoProb = 0.5;
+const numLogos = 5;
+
 var camptown = document.createElement('audio');
 
 function loadFile(evt) {
@@ -212,9 +218,30 @@ function drawObstSqr(x, y) {
   sqr.setAttribute('width', mag);
   sqr.setAttribute('height', mag);
   sqr.style.fill = obstColor;
+  sqr.style.stroke = obstColor;
   sqr.style.opacity = obstOpacity;
-  sqr.style.stroke = 'none';
   courseFig.appendChild(sqr);
+}
+
+var nextLogo = 0;
+function drawLogo(x, y) {
+  var sqr = document.createElementNS(ns, 'rect');
+  sqr.setAttribute('x', gridX(x-1, y+logoHeight));
+  sqr.setAttribute('y', gridY(x-1, y+logoHeight));
+  sqr.setAttribute('width', mag*logoWidth);
+  sqr.setAttribute('height', mag*logoHeight);
+  sqr.style.fill = obstColor;
+  sqr.style.stroke = obstColor;
+  sqr.style.opacity = obstOpacity;
+  courseFig.appendChild(sqr);
+  var logo = document.createElementNS(ns, 'image');
+  logo.setAttribute('x', gridX(x-1, y+logoHeight)+logoMargin*mag*logoWidth);
+  logo.setAttribute('y', gridY(x-1, y+logoHeight)+logoMargin*mag*logoHeight);
+  logo.setAttribute('width', (1-2*logoMargin)*mag*logoWidth);
+  logo.setAttribute('height', (1-2*logoMargin)*mag*logoHeight);
+  logo.setAttribute('href', 'logos/logo'+nextLogo+'.png');
+  nextLogo = (nextLogo+1)%numLogos;
+  courseFig.appendChild(logo);
 }
 
 function drawObstTrgl(x1, y1, x2, y2, x3, y3) {
@@ -283,14 +310,16 @@ function drawCourse() {
   ag.setAttribute('height', mag*(ylimit-course.length));
   ag.style.fill = afterGoalColor;
   courseFig.appendChild(ag);
+  var logoCand = [];
   for (var y = 0; y != ylimit-1; y++) {
+    logoCand[y] = [];
     for (var x = 1; x != course.width; x++) {
       var nw = (course.obstacles[y+1][x-1]);
       var sw = (course.obstacles[y][x-1]);
       var ne = course.obstacles[y+1][x];
       var se = course.obstacles[y][x];
       if (nw && sw && ne && se) {
-	drawObstSqr(x, y);
+	logoCand[y][x] = true;
       } else if (nw && sw) {
 	if (ne)	drawObstTrgl(x-1, y+1, x-1, y, x, y+1);
 	else if (se) drawObstTrgl(x-1, y+1, x-1, y, x, y);	
@@ -317,6 +346,33 @@ function drawCourse() {
       dot.style.fill = course.obstacles[y][x] ? obstacleFill : gridDotColor;
       dot.style.stroke = 'none';
       courseFig.appendChild(dot);
+    }
+  }
+  for (var y = 0; y != ylimit-1; y++) {
+    for (var x = 1; x != course.width; x++) {
+      if (logoCand[y][x]) {
+	var placeLogo =
+      	    x + logoWidth < course.width &&
+      	    y + logoHeight < ylimit;
+	if (placeLogo) {
+      	  for (var k = 0; k != logoHeight; k++) {
+      	    for (var j = 0; j != logoWidth; j++) {
+      	      placeLogo &= logoCand[y+k][x+j];
+      	    }
+      	  }
+      	  placeLogo &= Math.random() < logoProb;
+	}
+	if (placeLogo) {
+  	  drawLogo(x, y);
+  	  for (var k = 0; k != logoHeight; k++) {
+  	    for (var j = 0; j != logoWidth; j++) {
+  	      logoCand[y+k][x+j] = false;
+  	    }
+  	  }
+	} else {
+  	  drawObstSqr(x, y);
+	}
+      }
     }
   }
   var startLine = document.createElementNS(ns, 'line');
@@ -527,7 +583,14 @@ function loadAudio(src, volume, loop) {
   audio.loop = loop;
   return audio;
 }
-  
+
+function fileExists(url) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('HEAD', url, false);
+  xhr.send();
+  return xhr.status !== "404";
+}
+
 var bgm = loadAudio("camptown.wav", 1, true);
 var horseSteps = loadAudio("horseSteps.wav", 1, true);
 var goalSound = loadAudio("gong.wav", 1, false);
