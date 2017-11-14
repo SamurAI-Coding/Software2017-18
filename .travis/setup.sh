@@ -8,6 +8,9 @@ else
     if [ -e $HOME/local/include/boost/process.hpp ]; then
         echo "using cache!"
     else
+        cd $HOME
+        mkdir tmp
+        cd tmp
         echo "build boost..."
         wget -O boost_${BOOST_VERSION}.tar.gz "${BOOST_SRC_URL}"
         tar zxvf boost_${BOOST_VERSION}.tar.gz >> /dev/null
