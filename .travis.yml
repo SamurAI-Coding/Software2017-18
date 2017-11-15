@@ -34,14 +34,15 @@ before_install:
     - eval "${MATRIX_EVAL}"
 
 install:
+    - export REPO=`pwd`
     - export ARCH=`uname -m`
-    - ./.travis/setup.sh
+    - $REPO/.travis/setup.sh
 
 script:
-    - cd $HOME/build/arukuka/Software2017-18/official
+    - cd $REPO/official
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make CXX="${CXX}" CXXFLAGS="-I $HOME/local/include -std=c++11 -pthread -W -Wall -g -ggdb" AM_LDFLAGS="-L $HOME/local/lib -static -lboost_system -lboost_filesystem -lboost_program_options -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make CXX="${CXX}" AM_LDFLAGS="/usr/local/lib/libboost_system.a /usr/local/lib/libboost_filesystem.a /usr/local/lib/libboost_program_options.a"; fi
-    - cd $HOME/build/arukuka/Software2017-18/player
+    - cd $REPO/player
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make CXXFLAGS="-pthread -std=c++11 -W -Wall -g -ggdb" AM_LDFLAGS="-static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make; fi
 
@@ -49,7 +50,7 @@ before_deploy:
   - cd $HOME
   - mkdir deploy
   - cd deploy
-  - cp -rfv $HOME/build/arukuka/Software2017-18 Software2017-18
+  - cp -rfv $REPO Software2017-18
   - rm -rfv Software2017-18/.git
   - rm -fv Software2017-18/.gitignore
   - rm -rfv Software2017-18/.travis
