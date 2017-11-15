@@ -8,7 +8,7 @@ const maxMag = 30;
 const minMag = 8;
 
 function gridX(x) { return mag*(x+0.5); }
-function gridY(y) { return mag*(course.length+course.vision-y+0.5); }
+function gridY(y) { return mag*(ylimit-y-0.5); }
 function obstX(x) { return gridX(x); }
 function obstY(y) { return gridY(y); }
 
@@ -62,6 +62,8 @@ var course = {
   obstacles: []
 };
 
+var ylimit = course.length+course.vision-1;
+
 function zoom(diff) {
   var newMag = mag+diff;
   if (newMag < minMag) return;
@@ -96,6 +98,7 @@ function sizeSet(evt) {
   course.length = l;
   course.width = w;
   course.vision = v;
+  ylimit = course.length+course.vision-1;
   course.thinkTime = tl;
   course.stepLimit = sl;
   course.x0 = Math.floor((w-1)/2);
@@ -163,7 +166,7 @@ function writeFile(evt) {
 
 function encodeCourse() {
   var obsts = [];
-  for (var y = 0; y != course.length+course.vision+1; y++) {
+  for (var y = 0; y != ylimit+1; y++) {
     var o = [];
     for (var x = 0; x != course.width; x++) {
       o.push(obstacled[x][y] ? 1 : 0);
@@ -255,7 +258,7 @@ function moveVertex(evt) {
   var newy = originaly - Math.round((evt.clientY - starty)/mag);
   if ((focusedItem.point.x != newx || focusedItem.point.y != newy) &&
        0 <= newx && newx < course.width &&
-       0 <= newy && newy < course.length+course.vision+1) {
+       0 <= newy && newy < ylimit+1) {
     focusedItem.point.x = newx;
     focusedItem.point.y = newy;
     reviseCourse();
@@ -393,11 +396,11 @@ function drawCourse() {
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   vertexRadius = Math.min(vertexMaxRadius, mag/2) - 1;
   gridDotRadius = mag*gridDotRadiusRatio;
-  svg.setAttribute('height', mag*(course.length+course.vision+1));
+  svg.setAttribute('height', mag*(ylimit+1));
   ns = svg.namespaceURI;
   var bg = document.createElementNS(ns, 'rect');
   bg.setAttribute('x', 0);
-  bg.setAttribute('y', mag*(course.vision+0.5));
+  bg.setAttribute('y', mag*(course.vision-1.5));
   bg.setAttribute('width', mag*course.width);
   bg.setAttribute('height', mag*(course.length+0.5));
   // bg.setAttribute('height', svg.getAttribute('height'));
@@ -407,12 +410,12 @@ function drawCourse() {
   ag.setAttribute('x', 0);
   ag.setAttribute('y', mag*(-0.5));
   ag.setAttribute('width', mag*course.width);
-  ag.setAttribute('height', mag*(course.vision+1));
+  ag.setAttribute('height', mag*(course.vision-1));
   ag.style.fill = afterGoalColor;
   svg.appendChild(ag);
   courseElements = document.createElementNS(ns, 'g');
   var invisCircles = document.createElementNS(ns, 'g');
-  for (var y = 0; y != course.length+course.vision+1; y++) {
+  for (var y = 0; y != ylimit+1; y++) {
     for (var x = 0; x != course.width; x++) {
       var invis = document.createElementNS(ns, 'circle');
       invis.setAttribute('cx', obstX(x));
@@ -469,7 +472,7 @@ function placeObstacle(obst) {
     minx = Math.min(p.x, minx); maxx = Math.max(p.x, maxx);
     miny = Math.min(p.y, miny); maxy = Math.max(p.y, maxy);
   });
-  for (var y = miny; y <= maxy+course.vision+1; y++) {
+  for (var y = miny; y <= maxy+course.vision; y++) {
     for (var x = minx; x <= maxx; x++) {
       if (covers(obst, x, y)) obstacled[x][y] = true;
     }
@@ -529,14 +532,14 @@ function reviseCourse() {
   obstacled = [];
   for (var x = 0; x != course.width; x++) {
     obstacled[x] = [];
-    for (var y = 0; y != course.length+course.vision; y++) {
+    for (var y = 0; y != ylimit; y++) {
       obstacled[x][y] = false;
     }
     obstacled[x][-1] = true;
-    obstacled[x][course.length+course.vision+1] = true;
+    obstacled[x][ylimit+1] = true;
   }
   course.obstacles.forEach(function (o) { placeObstacle(o); });
-  for (var y = 0; y != course.length+course.vision; y++) {
+  for (var y = 0; y != ylimit; y++) {
     for (var x = 1; x != course.width; x++) {
       var nw = (obstacled[x-1][y+1]);
       var sw = (obstacled[x-1][y]);
@@ -561,7 +564,7 @@ function reviseCourse() {
       }
     }
   }
-  for (var y = 0; y != course.length+course.vision+1; y++) {
+  for (var y = 0; y != ylimit+1; y++) {
     for (var x = 0; x != course.width; x++) {
       var dot = document.createElementNS(ns, 'circle');
       dot.setAttribute('cx', gridX(x));
