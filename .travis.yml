@@ -1,0 +1,66 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: false
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-4.8
+      compiler: gcc-4.8
+      env:
+        - NAME=ubuntu-trusty
+        - MATRIX_EVAL="CC=gcc-4.8 && CXX=g++-4.8"
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
+      env: NAME=osx-xcode7.3
+
+cache:
+  ccache: true
+  directories:
+  - $HOME/local
+
+env:
+    global:
+        - BOOST_VERSION='1_64_0'
+        - BOOST_SRC_URL='https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz'
+
+before_install:
+    - eval "${MATRIX_EVAL}"
+
+install:
+    - export ARCH=`uname -m`
+    - ./.travis/setup.sh
+
+script:
+    - cd $HOME/build/arukuka/Software2017-18/official
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make CXX="${CXX}" CXXFLAGS="-I $HOME/local/include -std=c++11 -pthread -W -Wall -g -ggdb" AM_LDFLAGS="-L $HOME/local/lib -static -lboost_system -lboost_filesystem -lboost_program_options -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make CXX="${CXX}" AM_LDFLAGS="/usr/local/lib/libboost_system.a /usr/local/lib/libboost_filesystem.a /usr/local/lib/libboost_program_options.a"; fi
+    - cd $HOME/build/arukuka/Software2017-18/player
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make CXXFLAGS="-pthread -std=c++11 -W -Wall -g -ggdb" AM_LDFLAGS="-static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make; fi
+
+before_deploy:
+  - cd $HOME
+  - mkdir deploy
+  - cd deploy
+  - cp -rfv $HOME/build/arukuka/Software2017-18 Software2017-18
+  - rm -rfv Software2017-18/.git
+  - rm -fv Software2017-18/.gitignore
+  - rm -rfv Software2017-18/.travis
+  - rm -fv Software2017-18/.travis.yml
+  - tar -zcvf "${HOME}/deploy/Software2017-18_${TRAVIS_TAG}_${ARCH}-${NAME}.tar.gz" ./Software2017-18
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "v7xQB73eb88fTHCP6/LL5eb46OxlVKfaYBqSC9uvwfDfpWcszOLpM0YZJ10fmGDY0PqEVDAYML72MwFPEdRqjmA9Ki0OuVcDUbKRTDgPbS+NfCrDU7zda6Fg+pJZ0xidB/OB2CQNaa6gf+D2ZhA+EfJYF25rJK9EJOOVtaRilo1lmykVRF//K3c1udXYFDGB9Ls409jxv9OpARAZjA29sjniL0aGNcQnLCj56jFkQn5GuYl7GQdP2+MnCznlxNhdO0taj0eIFEKqUzxOGHiNhkTML8UtdLy5dU/tGyp6JaasNdsMhWiNiRrssSZi7v6akdYy9eC/kzMzUqJkAWf8j2Ihdc+1NvBSs5U8/Bjk2vhvOFExN5id62l9Ld88MXEFR2YEpX9Mqu0QxQevNicGTfPAPDiYL8Or4RWPm0KviltDk9JZz73WdVQjpJ/O50R6MUJyvcFTwGJXo5ks06HhPQAJhM/vJgURkTtxYuEqjxGH58rhawf9WWU/nrFvUDzGGNUXcLF69js5di2TIQmhL82goGW40E02rV+iaqGim/jntrdza8BRPAKWXz0st9LWo415sbXC5YBPbOvRErkfd92PaFvCetWtmdMqvxiybqrANfkAsx+GOkR3NwHZfxV8DUwfVvF2fs5snRKtHap0gAmgf6VCI/fJF3GTY8g6h1A="
+  file: ${HOME}/deploy/Software2017-18_${TRAVIS_TAG}_${ARCH}-${NAME}.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true
