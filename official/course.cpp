@@ -110,7 +110,7 @@ ObstacleCol::const_iterator ObstacleCol::end() const {
   return col.end();
 }
 
-Obstacle::Obstacle_Impl::Obstacle_Impl(const boost::property_tree::ptree& tree)
+Obstacle::Obstacle_Impl::Obstacle_Impl(const boost::property_tree::ptree& tree, const int length, const int vision)
     : UNDER(true, tree.size() ? tree.front().second.size() : 0),
       OVER(false, tree.size() ? tree.front().second.size() : 0) {
   if (tree.size() == 0) {
@@ -120,6 +120,10 @@ Obstacle::Obstacle_Impl::Obstacle_Impl(const boost::property_tree::ptree& tree)
   rows = 0;
   raw = {};
   for (const auto& v : tree) {
+    if (rows >= length + vision) {
+      std::cerr << "\e[1m\e[91mWarning\e[0m: \e[4mobstacles row size:" << tree.size() << " is over length:" << length << " + vision:" << vision << ", so the excess was ignored.\e[0m" << std::endl;
+      break;
+    }
     if (v.second.size() != cols) {
       throw std::invalid_argument("not all col size is equal");
     }
@@ -143,8 +147,8 @@ Obstacle::Obstacle_Impl::const_iterator Obstacle::Obstacle_Impl::end() const {
   return raw.end();
 }
 
-Obstacle::Obstacle(const boost::property_tree::ptree& tree) {
-  obstacle_ptr = std::make_shared<Obstacle_Impl>(tree);
+Obstacle::Obstacle(const boost::property_tree::ptree& tree, const int length, const int vision) {
+  obstacle_ptr = std::make_shared<Obstacle_Impl>(tree, length, vision);
 }
 const ObstacleCol& Obstacle::operator[](int pos) const {
   return (*obstacle_ptr)[pos];
@@ -172,7 +176,7 @@ RaceCourse::RaceCourse(istream &in) {
   stepLimit = courseTree.get<int>("stepLimit");
   startX[0] = courseTree.get<int>("x0");
   startX[1] = courseTree.get<int>("x1");
-  obstacle = std::move(Obstacle(courseTree.get_child("obstacles")));
+  obstacle = Obstacle(courseTree.get_child("obstacles"), length, vision);
 }
 
 void IntVec::writeJson(ostream &out) {

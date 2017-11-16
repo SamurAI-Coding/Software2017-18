@@ -47,14 +47,14 @@ private:
     int rows;
     std::vector<ObstacleCol> raw;
   public:
-    Obstacle_Impl(const boost::property_tree::ptree& tree);
+    Obstacle_Impl(const boost::property_tree::ptree& tree, const int length, const int vision);
     const ObstacleCol& operator[](int pos) const;
     const_iterator begin() const;
     const_iterator end() const;
   };
   std::shared_ptr<Obstacle_Impl> obstacle_ptr;
 public:
-  Obstacle(const boost::property_tree::ptree& tree);
+  Obstacle(const boost::property_tree::ptree& tree, const int length, const int vision);
   const ObstacleCol& operator[](int pos) const;
   Obstacle() = default;
   decltype(obstacle_ptr->begin()) begin() const;
