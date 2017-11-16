@@ -8,7 +8,7 @@ const maxMag = 30;
 const minMag = 8;
 
 function gridX(x) { return mag*(x+0.5); }
-function gridY(y) { return mag*(ylimit-y-0.5); }
+function gridY(y) { return mag*(ylimit-y+0.5); }
 function obstX(x) { return gridX(x); }
 function obstY(y) { return gridY(y); }
 
@@ -62,7 +62,7 @@ var course = {
   obstacles: []
 };
 
-var ylimit = course.length+course.vision-1;
+var ylimit = course.length+course.vision;
 
 function zoom(diff) {
   var newMag = mag+diff;
@@ -400,9 +400,9 @@ function drawCourse() {
   ns = svg.namespaceURI;
   var bg = document.createElementNS(ns, 'rect');
   bg.setAttribute('x', 0);
-  bg.setAttribute('y', mag*(course.vision-1.5));
+  bg.setAttribute('y', mag*(course.vision-0.5));
   bg.setAttribute('width', mag*course.width);
-  bg.setAttribute('height', mag*(course.length+0.5));
+  bg.setAttribute('height', mag*(course.length+1.5));
   // bg.setAttribute('height', svg.getAttribute('height'));
   bg.style.fill = backgroundColor;
   svg.appendChild(bg);
@@ -410,7 +410,7 @@ function drawCourse() {
   ag.setAttribute('x', 0);
   ag.setAttribute('y', mag*(-0.5));
   ag.setAttribute('width', mag*course.width);
-  ag.setAttribute('height', mag*(course.vision-1));
+  ag.setAttribute('height', mag*(course.vision));
   ag.style.fill = afterGoalColor;
   svg.appendChild(ag);
   courseElements = document.createElementNS(ns, 'g');
