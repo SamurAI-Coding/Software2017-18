@@ -317,7 +317,7 @@ function drawCourse() {
   startLine.setAttribute('x2', gridX(course.width-0.5, 0));
   startLine.setAttribute('y2', gridY(course.width-0.5, 0));
   startLine.style.stroke = goalLineColor;
-  startLine.style['stroke-width'] = 0.1*mag;
+  startLine.style['stroke-width'] = 0.5*mag;
   courseFig.appendChild(startLine);
   var goalLine = document.createElementNS(ns, 'line');
   goalLine.setAttribute('x1', gridX(-0.5, course.length));
@@ -325,7 +325,7 @@ function drawCourse() {
   goalLine.setAttribute('x2', gridX(course.width-0.5, course.length));
   goalLine.setAttribute('y2', gridY(course.width-0.5, course.length));
   goalLine.style.stroke = goalLineColor;
-  goalLine.style['stroke-width'] = 0.1*mag;
+  goalLine.style['stroke-width'] = 0.5*mag;
   courseFig.appendChild(goalLine);
   var logoCand = [];
   for (var y = 0; y != ylimit-1; y++) {
