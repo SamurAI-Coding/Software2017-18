@@ -310,6 +310,23 @@ function drawCourse() {
   ag.setAttribute('height', mag*(ylimit-course.length));
   ag.style.fill = afterGoalColor;
   courseFig.appendChild(ag);
+  // draw start, goal line
+  var startLine = document.createElementNS(ns, 'line');
+  startLine.setAttribute('x1', gridX(-0.5, 0));
+  startLine.setAttribute('y1', gridY(-0.5, 0));
+  startLine.setAttribute('x2', gridX(course.width-0.5, 0));
+  startLine.setAttribute('y2', gridY(course.width-0.5, 0));
+  startLine.style.stroke = goalLineColor;
+  startLine.style['stroke-width'] = 0.1*mag;
+  courseFig.appendChild(startLine);
+  var goalLine = document.createElementNS(ns, 'line');
+  goalLine.setAttribute('x1', gridX(-0.5, course.length));
+  goalLine.setAttribute('y1', gridY(-0.5, course.length));
+  goalLine.setAttribute('x2', gridX(course.width-0.5, course.length));
+  goalLine.setAttribute('y2', gridY(course.width-0.5, course.length));
+  goalLine.style.stroke = goalLineColor;
+  goalLine.style['stroke-width'] = 0.1*mag;
+  courseFig.appendChild(goalLine);
   var logoCand = [];
   for (var y = 0; y != ylimit-1; y++) {
     logoCand[y] = [];
@@ -375,22 +392,6 @@ function drawCourse() {
       }
     }
   }
-  var startLine = document.createElementNS(ns, 'line');
-  startLine.setAttribute('x1', gridX(-0.5, 0));
-  startLine.setAttribute('y1', gridY(-0.5, 0));
-  startLine.setAttribute('x2', gridX(course.width-0.5, 0));
-  startLine.setAttribute('y2', gridY(course.width-0.5, 0));
-  startLine.style.stroke = goalLineColor;
-  startLine.style['stroke-width'] = 0.1*mag;
-  courseFig.appendChild(startLine);
-  var goalLine = document.createElementNS(ns, 'line');
-  goalLine.setAttribute('x1', gridX(-0.5, course.length));
-  goalLine.setAttribute('y1', gridY(-0.5, course.length));
-  goalLine.setAttribute('x2', gridX(course.width-0.5, course.length));
-  goalLine.setAttribute('y2', gridY(course.width-0.5, course.length));
-  goalLine.style.stroke = goalLineColor;
-  goalLine.style['stroke-width'] = 0.1*mag;
-  courseFig.appendChild(goalLine);
   field.appendChild(courseFig);
   // Put the course and overview drawings on the SVG
   var overview = document.createElementNS(ns, 'use');
