@@ -147,7 +147,7 @@ Player::Player(string command, const RaceCourse &course, int xpos,
   }
   if (option.pauseCommand) {
     std::error_code ec;
-    int result = boost::process::system(boost::process::shell, option.pauseCommand.get(), ec);
+    int result = boost::process::system(boost::process::shell, option.pauseCommand.get(), ec, boost::process::std_out > stderr);
     std::cerr << __FILE__ << ":" << __LINE__ << ": [pause] (" << name << ") return code : " << result << ", error value : " << ec.value() << ", error message : " << ec.message() << std::endl;
   }
   if (result == std::future_status::timeout) {
@@ -252,7 +252,7 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   stderrLogger->mutex->unlock();
   if (option.resumeCommand) {
     std::error_code ec;
-    int result = boost::process::system(boost::process::shell, option.resumeCommand.get(), ec);
+    int result = boost::process::system(boost::process::shell, option.resumeCommand.get(), ec, boost::process::std_out > stderr);
     std::cerr << __FILE__ << ":" << __LINE__ << ": [resume] (" << name << ") return code : " << result << ", error value : " << ec.value() << ", error message : " << ec.message() << std::endl;
   }
   std::chrono::milliseconds remain(timeLeft);
@@ -269,7 +269,7 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   }
   if (option.pauseCommand) {
     std::error_code ec;
-    int result = boost::process::system(boost::process::shell, option.pauseCommand.get(), ec);
+    int result = boost::process::system(boost::process::shell, option.pauseCommand.get(), ec, boost::process::std_out > stderr);
     std::cerr << __FILE__ << ":" << __LINE__ << ": [pause] (" << name << ") return code : " << result << ", error value : " << ec.value() << ", error message : " << ec.message() << std::endl;
   }
   if (result == std::future_status::timeout) {
