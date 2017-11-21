@@ -57,7 +57,7 @@ var startAnew;
 var course = {
   filetype: editingCourseFileType,
   width: 15, length: 30, vision: 10,
-  thinkTime: 2000, stepLimit: 50,
+  thinkTime: 20000, stepLimit: 50,
   x0: 6, x1: 8,
   obstacles: []
 };
@@ -128,6 +128,7 @@ function loadFile(evt) {
 	document.getElementById("vision").value = course.vision;
 	document.getElementById("thinkTime").value = course.thinkTime;
 	document.getElementById("stepLimit").value = course.stepLimit;
+	ylimit = course.length+course.vision-1;
 	buildCourse();
       }
     };
