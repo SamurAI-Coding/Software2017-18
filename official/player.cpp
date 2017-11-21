@@ -107,8 +107,7 @@ Player::Player(string command, const RaceCourse &course, int xpos,
          string name, const Option &opt):
   name(name), position(Point(xpos, 0)), velocity(0, 0),
   timeLeft(course.thinkTime), status(Status::VALID),
-  stdinLogStream(opt.stdinLogStream), stderrLogStream(opt.stderrLogStream),
-  pauseCommand(opt.pauseCommand), resumeCommand(opt.resumeCommand) {
+  option(opt) {
   auto env = boost::this_process::environment();
   std::error_code error_code_child;
   std::unique_ptr<boost::process::ipstream> stderrFromAI(new boost::process::ipstream);
@@ -122,16 +121,16 @@ Player::Player(string command, const RaceCourse &course, int xpos,
     env,
     error_code_child
   ));
-  if (stderrLogStream) {
-    *stderrLogStream << "[system] Try : hand shake" << endl;
+  if (option.stderrLogStream) {
+    *option.stderrLogStream << "[system] Try : hand shake" << endl;
   }
-  stderrLogger = std::unique_ptr<Logger>(new Logger(std::move(stderrFromAI), stderrLogStream, 1 << 15));
-  sendToAI(toAI, stdinLogStream, "%d\n", course.thinkTime);
-  sendToAI(toAI, stdinLogStream, "%d\n", course.stepLimit);
-  sendToAI(toAI, stdinLogStream, "%d ", course.width);
-  sendToAI(toAI, stdinLogStream, "%d\n", course.length);
-  sendToAI(toAI, stdinLogStream, "%d\n", course.vision);
-  flushToAI(toAI, stdinLogStream);
+  stderrLogger = std::unique_ptr<Logger>(new Logger(std::move(stderrFromAI), option.stderrLogStream, 1 << 15));
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.thinkTime);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.stepLimit);
+  sendToAI(toAI, option.stdinLogStream, "%d ", course.width);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.length);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.vision);
+  flushToAI(toAI, option.stdinLogStream);
   std::promise<std::pair<std::unique_ptr<boost::process::ipstream>, Message>> promise;
   std::future<std::pair<std::unique_ptr<boost::process::ipstream>, Message>> future = promise.get_future();
   std::chrono::milliseconds remain(timeLeft);
@@ -143,19 +142,19 @@ Player::Player(string command, const RaceCourse &course, int xpos,
   timeLeft -= timeUsed;
   thread.join();
   stderrLogger->mutex->lock();
-  if (stderrLogStream) {
-    *stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
+  if (option.stderrLogStream) {
+    *option.stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
   }
-  if (pauseCommand) {
+  if (option.pauseCommand) {
     std::error_code ec;
-    int result = boost::process::system(pauseCommand.get(), ec);
+    int result = boost::process::system(boost::process::shell, option.pauseCommand.get(), ec, boost::process::std_out > stderr);
     std::cerr << __FILE__ << ":" << __LINE__ << ": [pause] (" << name << ") return code : " << result << ", error value : " << ec.value() << ", error message : " << ec.message() << std::endl;
   }
   if (result == std::future_status::timeout) {
     status = Status::TIMEOUT;
     std::cerr << "player : \"" << name << "\" has been timeouted" << std::endl;
-    if (stderrLogStream) {
-      *stderrLogStream << "your AI : \"" << name << "\" has been timeouted" << std::endl;
+    if (option.stderrLogStream) {
+      *option.stderrLogStream << "your AI : \"" << name << "\" has been timeouted" << std::endl;
     }
     return;
   }
@@ -164,20 +163,20 @@ Player::Player(string command, const RaceCourse &course, int xpos,
   auto ans = ret.second.first;
   for (const auto& line : ret.second.second) {
     std::cerr << line << std::endl;
-    if (stderrLogStream) {
-      *stderrLogStream << "[system] " << line << std::endl;
+    if (option.stderrLogStream) {
+      *option.stderrLogStream << "[system] " << line << std::endl;
     }
   }
   if (!ans || ans.get() != 0) {
-    if (stderrLogStream) {
-      *stderrLogStream << "[system] Failed... : hand shake" << endl;
+    if (option.stderrLogStream) {
+      *option.stderrLogStream << "[system] Failed... : hand shake" << endl;
     }
     if (!child->running()) {
       std::cerr << "player : \"" << name << "\" is died." << std::endl;
       std::cerr << "\texit code : " << child->exit_code() << std::endl;
-      if (stderrLogStream) {
-        *stderrLogStream << "[system] your AI : \"" << name << "\" is died." << std::endl;
-        *stderrLogStream << "[system] \texit code : " << child->exit_code() << std::endl;
+      if (option.stderrLogStream) {
+        *option.stderrLogStream << "[system] your AI : \"" << name << "\" is died." << std::endl;
+        *option.stderrLogStream << "[system] \texit code : " << child->exit_code() << std::endl;
       }
       status = Status::DIED;
       return;
@@ -186,14 +185,14 @@ Player::Player(string command, const RaceCourse &course, int xpos,
       int v = ans.get();
       cerr << "Response at initialization of player \"" << name << "\" : ("
      << v << ") is non-zero" << endl;
-      if (stderrLogStream) {
-        *stderrLogStream << "[system] Response at initialization of player \"" << name << "\" : (" << v << ") is non-zero" << std::endl;
+      if (option.stderrLogStream) {
+        *option.stderrLogStream << "[system] Response at initialization of player \"" << name << "\" : (" << v << ") is non-zero" << std::endl;
       }
     }
     status = Status::INVALID;
   } else { 
-    if (stderrLogStream) {
-      *stderrLogStream << "[system] Success! : hand shake" << endl;
+    if (option.stderrLogStream) {
+      *option.stderrLogStream << "[system] Success! : hand shake" << endl;
     }
   }
 }
@@ -224,36 +223,36 @@ static void readAct(std::unique_ptr<boost::process::ipstream> in, std::promise<s
 }
 
 IntVec Player::play(int c, Player &op, RaceCourse &course) {
-  if (stderrLogStream) {
-    *stderrLogStream << "[system] ================================" << std::endl;
-    *stderrLogStream << "[system] turn: " << c << std::endl;
+  if (option.stderrLogStream) {
+    *option.stderrLogStream << "[system] ================================" << std::endl;
+    *option.stderrLogStream << "[system] turn: " << c << std::endl;
   }
-  sendToAI(toAI, stdinLogStream, "%d\n", c);
-  sendToAI(toAI, stdinLogStream, "%" PRId64 "\n", timeLeft);
-  sendToAI(toAI, stdinLogStream, "%d ", position.x);
-  sendToAI(toAI, stdinLogStream, "%d ", position.y);
-  sendToAI(toAI, stdinLogStream, "%d ", velocity.x);
-  sendToAI(toAI, stdinLogStream, "%d\n", velocity.y);
-  sendToAI(toAI, stdinLogStream, "%d ", op.position.x);
-  sendToAI(toAI, stdinLogStream, "%d ", op.position.y);
-  sendToAI(toAI, stdinLogStream, "%d ", op.velocity.x);
-  sendToAI(toAI, stdinLogStream, "%d\n", op.velocity.y);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", c);
+  sendToAI(toAI, option.stdinLogStream, "%" PRId64 "\n", timeLeft);
+  sendToAI(toAI, option.stdinLogStream, "%d ", position.x);
+  sendToAI(toAI, option.stdinLogStream, "%d ", position.y);
+  sendToAI(toAI, option.stdinLogStream, "%d ", velocity.x);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", velocity.y);
+  sendToAI(toAI, option.stdinLogStream, "%d ", op.position.x);
+  sendToAI(toAI, option.stdinLogStream, "%d ", op.position.y);
+  sendToAI(toAI, option.stdinLogStream, "%d ", op.velocity.x);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", op.velocity.y);
   for (int dy = -course.vision; dy <= course.vision; ++dy) {
     for (int x = 0; x < course.width; ++x) {
       if (x) {
-        sendToAI(toAI, stdinLogStream, " ", 0);
+        sendToAI(toAI, option.stdinLogStream, " ", 0);
       }
-      sendToAI(toAI, stdinLogStream, "%d", course.obstacle[position.y + dy][x] ? 1 : 0);
+      sendToAI(toAI, option.stdinLogStream, "%d", course.obstacle[position.y + dy][x] ? 1 : 0);
     }
-    sendToAI(toAI, stdinLogStream, "\n", 0);
+    sendToAI(toAI, option.stdinLogStream, "\n", 0);
   }
-  flushToAI(toAI, stdinLogStream);
+  flushToAI(toAI, option.stdinLogStream);
   std::promise<std::pair<std::unique_ptr<boost::process::ipstream>, Message4Act>> promise;
   std::future<std::pair<std::unique_ptr<boost::process::ipstream>, Message4Act>> future = promise.get_future();
   stderrLogger->mutex->unlock();
-  if (resumeCommand) {
+  if (option.resumeCommand) {
     std::error_code ec;
-    int result = boost::process::system(resumeCommand.get(), ec);
+    int result = boost::process::system(boost::process::shell, option.resumeCommand.get(), ec, boost::process::std_out > stderr);
     std::cerr << __FILE__ << ":" << __LINE__ << ": [resume] (" << name << ") return code : " << result << ", error value : " << ec.value() << ", error message : " << ec.message() << std::endl;
   }
   std::chrono::milliseconds remain(timeLeft);
@@ -265,19 +264,19 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   timeLeft -= timeUsed;
   thread.join();
   stderrLogger->mutex->lock();
-  if (stderrLogStream) {
-    *stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
+  if (option.stderrLogStream) {
+    *option.stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
   }
-  if (pauseCommand) {
+  if (option.pauseCommand) {
     std::error_code ec;
-    int result = boost::process::system(pauseCommand.get(), ec);
+    int result = boost::process::system(boost::process::shell, option.pauseCommand.get(), ec, boost::process::std_out > stderr);
     std::cerr << __FILE__ << ":" << __LINE__ << ": [pause] (" << name << ") return code : " << result << ", error value : " << ec.value() << ", error message : " << ec.message() << std::endl;
   }
   if (result == std::future_status::timeout) {
     status = Status::TIMEOUT;
     std::cerr << "player : " << name << " has been timeouted" << std::endl;
-    if (stderrLogStream) {
-      *stderrLogStream << "[system] your AI : \"" << name << "\" has been timeouted" << std::endl;
+    if (option.stderrLogStream) {
+      *option.stderrLogStream << "[system] your AI : \"" << name << "\" has been timeouted" << std::endl;
     }
     return IntVec();
   }
@@ -285,8 +284,8 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   fromAI = std::move(ret.first);
   for (const auto& line : ret.second.second) {
     std::cerr << line << std::endl;
-    if (stderrLogStream) {
-      *stderrLogStream << "[system] " << line << std::endl;
+    if (option.stderrLogStream) {
+      *option.stderrLogStream << "[system] " << line << std::endl;
     }
   }
   if (ret.second.first) {
@@ -294,8 +293,8 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
     if (val.first < -1 || 1 < val.first
       || val.second < -1 || 1 < val.second) {
       std::cerr << "acceleration value must be from -1 to 1 each axis, but player : \"" << name << "\" saied : (" << val.first << ", " << val.second << ")" << std::endl;
-      if (stderrLogStream) {
-        *stderrLogStream << "[system] acceleration value must be from -1 to 1 each axis, but your AI : \"" << name << "\" saied : (" << val.first << ", " << val.second << ")" << std::endl;
+      if (option.stderrLogStream) {
+        *option.stderrLogStream << "[system] acceleration value must be from -1 to 1 each axis, but your AI : \"" << name << "\" saied : (" << val.first << ", " << val.second << ")" << std::endl;
       }
       status = Status::INVALID;
       return IntVec();
@@ -305,9 +304,9 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
     if (!child->running()) {
       std::cerr << "player : \"" << name << "\" is died." << std::endl;
       std::cerr << "\texit code : " << child->exit_code() << std::endl;
-      if (stderrLogStream) {
-        *stderrLogStream << "[system] your AI : \"" << name << "\" is died." << std::endl;
-        *stderrLogStream << "[system] \texit code : " << child->exit_code() << std::endl;
+      if (option.stderrLogStream) {
+        *option.stderrLogStream << "[system] your AI : \"" << name << "\" is died." << std::endl;
+        *option.stderrLogStream << "[system] \texit code : " << child->exit_code() << std::endl;
       }
       status = Status::DIED;
       return IntVec();
