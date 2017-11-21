@@ -129,6 +129,7 @@ function loadFile(evt) {
 	document.getElementById("thinkTime").value = course.thinkTime;
 	document.getElementById("stepLimit").value = course.stepLimit;
 	buildCourse();
+  sizeSet();
       }
     };
   reader.readAsText(file);
