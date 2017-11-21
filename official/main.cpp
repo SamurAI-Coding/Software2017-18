@@ -1,6 +1,7 @@
 #include "raceState.hpp"
 
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
 
 int main(int argc, char *argv[]) {
   boost::program_options::options_description desc("<option>");
@@ -49,9 +50,11 @@ int main(int argc, char *argv[]) {
       return nullptr;
     }
   };
-  auto take_command = [](const boost::program_options::variables_map& vm, const std::string& target) -> boost::optional<std::string> {
+  auto take_command = [](const boost::program_options::variables_map& vm, const std::string& target) -> boost::optional<std::vector<std::string>> {
     if (vm.count(target)) {
-      return vm[target].as<std::string>();
+      std::vector<std::string> args;
+      boost::algorithm::split(args, vm[target].as<std::string>(), boost::is_space(), boost::algorithm::token_compress_on);
+      return args;
     } else {
       return boost::none;
     }

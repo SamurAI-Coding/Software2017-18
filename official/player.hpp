@@ -10,8 +10,8 @@ struct RaceCourse;
 struct Option {
   std::shared_ptr<std::ofstream> stdinLogStream;
   std::shared_ptr<std::ofstream> stderrLogStream;
-  boost::optional<std::string> pauseCommand;
-  boost::optional<std::string> resumeCommand;
+  boost::optional<std::vector<std::string>> pauseCommand;
+  boost::optional<std::vector<std::string>> resumeCommand;
 };
 
 enum struct Status {
@@ -40,10 +40,7 @@ struct Player {
   IntVec velocity;
   int64_t timeLeft;
   Status status;
-  std::shared_ptr<std::ofstream> stdinLogStream;
-  std::shared_ptr<std::ofstream> stderrLogStream;
-  boost::optional<std::string> pauseCommand;
-  boost::optional<std::string> resumeCommand;
+  Option option;
   std::unique_ptr<Logger> stderrLogger;
   Player(string command, const RaceCourse &course,
    int xpos, string name, const Option &opt);
