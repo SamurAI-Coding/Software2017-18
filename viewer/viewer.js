@@ -82,6 +82,7 @@ function loadFile(evt) {
 	  if (obsts[x] != 0 && y > ylimit) ylimit = y;
 	}
       }
+      ++ylimit;
       gameLength = Math.max(raceLog.log0.length, raceLog.log1.length);
       for (var p = 0; p != 2; p++) {
 	var name = raceLog['name'+p];
