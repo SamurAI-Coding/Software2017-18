@@ -2,7 +2,11 @@
 \usepackage[a4paper, margin=20mm]{geometry}
 \usepackage{wrapfig}
 \usepackage{jtygm}
+\usepackage{listings}
+\usepackage[usenames, dvipsnames]{color}
 \usepackage[dvipdfmx]{graphicx}
+\usepackage{keystroke}
+\usepackage{menukeys}
 
 \newcommand\gamename{サムライジョッキー}
 
@@ -170,24 +174,51 @@ AIの応答出力も空白あるいは改行で区切った10進整数の並び�
 \subsection{初期化時の入力}
 初期化時のAIの入力は以下の項目がこの順に並ぶものである.
 \begin{description}
-\item[考慮時間] このレースで使える考慮時間をマイクロ秒単位の整数値として.
-\item[制限ステップ数] ゴールまでのステップ数の上限を整数値として.
-\item[コースサイズ] コースの幅および長さを, ふたつの整数値として.
-\item[視界] 視界に入る$y$座標の範囲を整数値$d$として.
+\item[考慮時間$t_{given}$] このレースで使える考慮時間をマイクロ秒単位の整数値として.
+\item[制限ステップ数$s_{max}$] ゴールまでのステップ数の上限を整数値として.
+\item[コースサイズ] コースの幅$w$および長さ$l$を, ふたつの整数値として.
+\item[視界$d$] 視界に入る$y$座標の範囲を整数値$d$として.
   位置$(x,y)$にあるプレイヤを制御するAIをに与えられる相手プレイヤや障害点の情報は, 
   $y$座標が$y-d$から$y+d$の範囲 (両端を含む) にあるもののみが与えられる.
 \end{description}
 
+\makeatletter
+\def\lst@visiblespace{$\color{Gray}{}_{
+  \mbox{\kern.06em\vrule \@height.3ex}%
+  \vbox{\hrule \@width.3em}%
+  \hbox{\vrule \@height.3ex}}$}
+\makeatother
+
+\lstset{
+  basicstyle=\ttfamily,
+  frame = single,
+  showspaces = true,
+  escapeinside={<@}{@>},
+  mathescape
+}
+
+\subsection{入力形式}
+\begin{lstlisting}
+$t_{given}$<@\tiny{\keys{\return}}@>
+$s_{max}$<@\tiny{\keys{\return}}@>
+$w$ $l$<@\tiny{\keys{\return}}@>
+$d$<@\tiny{\keys{\return}}@>
+\end{lstlisting}
+
 \subsection{初期化時の出力}
 AIは初期化が終了したことを整数$0$ひとつで伝える.
+
+\begin{lstlisting}
+0<@\tiny{\keys{\return}}@>
+\end{lstlisting}
 
 \subsection{ステップごとの入力情報}
 ステップごとのAIの入力は以下の項目がこの順に並ぶものである.
 \begin{description}
-\item[ステップ] 当該のステップの値を整数ひとつで与える.
-\item[残り考慮時間] このレースで使える考慮時間の残りをマイクロ秒単位の整数値として.
-\item[自プレイヤの状態] 当該のAIが制御するプレイヤの位置の$x$座標と$y$座標, 速度の$x$成分と$y$成分の4整数.
-\item[相手プレイヤの状態] 相手プレイヤの位置の$x$座標と$y$座標, 速度の$x$成分と$y$成分の4整数.
+\item[ステップ$s$] 当該のステップの値を整数ひとつで与える.
+\item[残り考慮時間$t_{left}$] このレースで使える考慮時間の残りをマイクロ秒単位の整数値として.
+\item[自プレイヤの状態] 当該のAIが制御するプレイヤの位置の$x$座標と$y$座標, 速度の$x$成分$v_x$と$y$成分$v_y$の4整数.
+\item[相手プレイヤの状態] 相手プレイヤの位置の$x$座標$ex$と$y$座標$ey$, 速度の$x$成分$ev_x$と$y$成分$ev_y$の4整数.
   ただし, 相手プレイヤの位置が視界の外であれば, $y$座標は$-1$, 他は$0$になる.
 \item[障害点] 視界内の各格子点が障害点であるか否かの情報で,
   $(2\times d+1)\times w$個の整数からなる. 視界内の$y-d$から$y+d$までの各$y$
@@ -197,8 +228,24 @@ AIは初期化が終了したことを整数$0$ひとつで伝える.
   いては$1$が与えられる.
 \end{description}
 
+\subsection{入力形式}
+\begin{lstlisting}
+$s$<@\tiny{\keys{\return}}@>
+$t_{left}$<@\tiny{\keys{\return}}@>
+$x$ $y$ $v_x$ $v_y$<@\tiny{\keys{\return}}@>
+$x_e$ $x_e$ $v_{x_e}$ $v_{y_e}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d}$ $o_{1,y-d}$ ... $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d+1}$ $o_{1,y-d+1}$ ... $o_{w-1,y-d+1}$<@\tiny{\keys{\return}}@>
+...
+$o_{0,y+d}$ $o_{1,y+d}$ ... $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
+\end{lstlisting}
+
 \subsection{ステップごとの出力}
 AIは当該ステップの加速度$(a_x,a_y)$をふたつの整数で指定する.
+
+\begin{lstlisting}
+$a_x$ $a_y$<@\tiny{\keys{\return}}@>
+\end{lstlisting}
 
 \subsection{情報の記憶}
 ゲーム管理システムは, 各ステップについて出力を終了したAIの動作を一時停
