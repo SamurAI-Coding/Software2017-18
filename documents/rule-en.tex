@@ -2,7 +2,12 @@
 \usepackage[a4paper, margin=20mm]{geometry}
 \usepackage{wrapfig}
 \usepackage{jtygm}
+\usepackage{listings}
+\usepackage[usenames, dvipsnames]{color}
 \usepackage[dvipdfmx]{graphicx}
+\usepackage{keystroke}
+\usepackage{menukeys}
+\usepackage{siunitx}
 
 \newcommand\gamename{SamurAI Jockey}
 
@@ -190,25 +195,52 @@ sign.  {\bf A newline should be placed at the ends of responses.}
 \subsection{Initial Input}
 At initiation, AI receives the following input items in this order.
 \begin{description}
-\item[Remaining Time] The remaining time usable in this race in
+\item[Remaining Time($t_{given}$)] The remaining time usable in this race in
   microseconds as an integer.
-\item[Step Limit] The limit of number of steps to finish as an integer.
-\item[Course Size] The width and length of the race course as two integers.
-\item[Vision Limit] The depth of the field of vision as an integer
+\item[Step Limit($s_{max}$)] The limit of number of steps to finish as an integer.
+\item[Course Size] The width($w$) and length($l$) of the race course as two integers.
+\item[Vision Limit($d$)] The depth of the field of vision as an integer
   $d.$ When the player is at $(x, y),$ information of the opponent and
   obstacle points are given for those at $y$-coordinates between $y-d$
   and $y+d$, inclusive.
 \end{description}
 
+\makeatletter
+\def\lst@visiblespace{$\color{Gray}{}_{
+  \mbox{\kern.06em\vrule \@height.3ex}%
+  \vbox{\hrule \@width.3em}%
+  \hbox{\vrule \@height.3ex}}$}
+\makeatother
+
+\lstset{
+  basicstyle=\ttfamily,
+  frame = single,
+  showspaces = true,
+  escapeinside={<@}{@>},
+  mathescape
+}
+
+\subsection{Initial Input Format}
+\begin{lstlisting}
+$t_{given}$<@\tiny{\keys{\return}}@>
+$s_{max}$<@\tiny{\keys{\return}}@>
+$w$ $l$<@\tiny{\keys{\return}}@>
+$d$<@\tiny{\keys{\return}}@>
+\end{lstlisting}
+
 \subsection{Initial Output}
 A player AI should respond with an integer $0$ to acknowledge that its
 initiation is done.
 
+\begin{lstlisting}
+0<@\tiny{\keys{\return}}@>
+\end{lstlisting}
+
 \subsection{Per Step Input}
 At each step, AI receives the following items in this order.
 \begin{description}
-\item[Step] The current step number as a single integer.
-\item[Remaining Time] The remaining time usable in this race in
+\item[Step($s$)] The current step number as a single integer.
+\item[Remaining Time($t_{left}$)] The remaining time usable in this race in
   microseconds as an integer.
 \item[Player's State] The $x$- and $y$-coordinates of the position and
   the $x$ and $y$ components the velocity of the player the AI is
@@ -229,10 +261,111 @@ At each step, AI receives the following items in this order.
 
 \end{description}
 
+
+\subsection{Per Step Input Format}
+\begin{lstlisting}
+$s$<@\tiny{\keys{\return}}@>
+$t_{left}$<@\tiny{\keys{\return}}@>
+$x$ $y$ $v_x$ $v_y$<@\tiny{\keys{\return}}@>
+$x_e$ $x_e$ $v_{x_e}$ $v_{y_e}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d}$ $o_{1,y-d}$ ... $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d+1}$ $o_{1,y-d+1}$ ... $o_{w-1,y-d+1}$<@\tiny{\keys{\return}}@>
+...
+$o_{0,y+d}$ $o_{1,y+d}$ ... $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
+\end{lstlisting}
+
 \subsection{Per Step Output}
 The player AI should output $x$- and $y$-components of the
 acceleration at the clock with two integers $a_{\rm x}$ and $a_{\rm
   y}$ as two integers.
+
+\begin{lstlisting}
+$a_{\rm x}$ $a_{\rm y}$<@\tiny{\keys{\return}}@>
+\end{lstlisting}
+
+\subsection{Sample Input}
+
+
+\begin{minipage}[t]{.6\textwidth}
+
+右に実際の入力例を示す．これは初期化から2ステップまでの入力となっている．
+
+初期化時の入力について，考慮時間，制限ステップ数，コースの幅，
+長さと視界がそれぞれ 20000, 100, 15, 100, 8
+となっていることが分かる．
+
+この入力を受け取ったらプレイヤーは0と改行をを出力しなければならない．
+
+以降はステップごとの入力情報になるが，まず最初のステップについて
+現在のステップと残り考慮時間がそれぞれ 0, 19981
+となっていることが確認できる．このAIは初期化時に 19 [\si{\micro \second}] だけかかり，
+残り 19981 [\si{\micro \second}] 残されているようだ．
+
+次の2行は自プレイヤと相手プレイヤの状態が示されており，
+このAIの現在の位置は $x = 5, y = 0$ で
+速度は$x$軸方向$y$軸方向ともに0となっている．
+
+次に続く17行（$\text{視界:}8 \times 2 + 1$）は視界内の格子点が障害点か否かを示している．
+$y < 0$におけるすべての格子点が障害点になることが分かる．
+前方には中央に障害物が集中しているようだ．
+
+この入力を受けたら，加速度$(a_x, a_y)$を出力する必要がある．
+すると，また次のステップの入力が与えられる．
+先ほどと同様の入力形式となっているが，どうやらこのAIは前ターンの加速度として
+$(-1, 1)$を出力したようだ．
+
+\end{minipage}
+ \hfill
+\begin{minipage}[t]{.3\textwidth}
+\begin{lstlisting}[aboveskip = -1.4\medskipamount, showspaces = false, basicstyle = \tiny, literate = {-}{-}1]
+20000
+100
+15 100
+8
+0
+19981
+5 0 0 0
+9 0 0 0
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 1 1 0 0 0 0 0 0
+0 0 0 0 0 1 1 1 1 0 0 0 0 0 0
+0 0 0 0 0 1 1 1 1 0 0 0 0 0 0
+0 0 0 0 1 1 1 1 1 1 0 0 0 0 0
+1
+19955
+4 1 -1 1
+8 1 -1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 1 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 1 1 0 0 0 0 0 0
+0 0 0 0 0 1 1 1 1 0 0 0 0 0 0
+0 0 0 0 0 1 1 1 1 0 0 0 0 0 0
+0 0 0 0 1 1 1 1 1 1 0 0 0 0 0
+0 0 0 1 1 1 1 1 1 1 0 0 0 0 0
+\end{lstlisting}
+\end{minipage}
 
 \subsection{Memory Duration}
 At each step, the game management system suspends the execution of AI
