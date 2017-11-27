@@ -61,6 +61,31 @@ const numLogos = 5;
 
 var camptown = document.createElement('audio');
 
+function loadLog(newLog) {
+  if (newLog.filetype != raceLogFileType) {
+alert('The file does not contain SamurAI Jockey race log data');
+return;
+  }
+  raceLog = newLog;
+  course = raceLog.course;
+  ylimit = course.length;
+  for (var y = course.length+1; y < course.obstacles.length; y++) {
+var obsts = course.obstacles[y];
+for (var x = 0; x != obsts.length; x++) {
+if (obsts[x] != 0 && y > ylimit) ylimit = y;
+}
+  }
+  ++ylimit;
+  gameLength = Math.max(raceLog.log0.length, raceLog.log1.length);
+  for (var p = 0; p != 2; p++) {
+var name = raceLog['name'+p];
+var playerName = document.getElementById('name'+p);
+playerName.innerHTML = name;
+  }
+  drawCourse();
+  setStep(0);
+}
+
 function loadFile(evt) {
   if (evt.target.files.length === 0) return;
   var file = evt.target.files[0];
@@ -69,28 +94,7 @@ function loadFile(evt) {
     function(ev) {
       openingSound.play();
       var newLog = JSON.parse(ev.target.result);
-      if (newLog.filetype != raceLogFileType) {
-	alert('The file does not contain SamurAI Jockey race log data');
-	return;
-      }
-      raceLog = newLog;
-      course = raceLog.course;
-      ylimit = course.length;
-      for (var y = course.length+1; y < course.obstacles.length; y++) {
-	var obsts = course.obstacles[y];
-	for (var x = 0; x != obsts.length; x++) {
-	  if (obsts[x] != 0 && y > ylimit) ylimit = y;
-	}
-      }
-      ++ylimit;
-      gameLength = Math.max(raceLog.log0.length, raceLog.log1.length);
-      for (var p = 0; p != 2; p++) {
-	var name = raceLog['name'+p];
-	var playerName = document.getElementById('name'+p);
-	playerName.innerHTML = name;
-      }
-      drawCourse();
-      setStep(0);
+      loadLog(newLog);
     };
   reader.readAsText(file);
 }
@@ -240,7 +244,7 @@ function drawLogo(x, y) {
   logo.setAttribute('y', gridY(x-1, y+logoHeight)+logoMargin*mag*logoHeight);
   logo.setAttribute('width', (1-2*logoMargin)*mag*logoWidth);
   logo.setAttribute('height', (1-2*logoMargin)*mag*logoHeight);
-  logo.setAttribute('href', 'logos/logo'+nextLogo+'.png');
+  logo.setAttribute('href', '/public/img/logos/logo'+nextLogo+'.png');
   nextLogo = (nextLogo+1)%numLogos;
   courseFig.appendChild(logo);
 }
@@ -592,8 +596,8 @@ function fileExists(url) {
   return xhr.status !== "404";
 }
 
-var bgm = loadAudio("camptown.wav", 1, true);
-var horseSteps = loadAudio("horseSteps.wav", 1, true);
-var goalSound = loadAudio("gong.wav", 1, false);
-var openingSound = loadAudio("neigh.wav", 1, false);
-var collisionSound = loadAudio("boyon.wav", 1, false);
+var bgm = loadAudio("/public/audio/camptown.wav", 1, true);
+var horseSteps = loadAudio("/public/audio/horseSteps.wav", 1, true);
+var goalSound = loadAudio("/public/audio/gong.wav", 1, false);
+var openingSound = loadAudio("/public/audio/neigh.wav", 1, false);
+var collisionSound = loadAudio("/public/audio/boyon.wav", 1, false);
