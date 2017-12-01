@@ -27,8 +27,9 @@ int main(int argc, char *argv[]) {
     boost::program_options::store(parsing_result, vm);
     boost::program_options::notify(vm);
     unnamed_args = boost::program_options::collect_unrecognized(parsing_result.options, boost::program_options::include_positional);
-  } catch (std::exception) {
+  } catch (std::exception& e) {
     cerr << "invalid command line arguments" << endl;;
+    cerr << e.what() << endl;
     help_message();
     return 1;
   }
