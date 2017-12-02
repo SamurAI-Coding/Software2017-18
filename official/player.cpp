@@ -108,6 +108,10 @@ Player::Player(string command, const RaceCourse &course, int xpos,
   name(name), position(Point(xpos, 0)), velocity(0, 0),
   timeLeft(course.thinkTime), status(Status::VALID),
   option(opt) {
+  if (command.length() == 0) {
+    status = Status::DIED;
+    return;
+  }
   auto env = boost::this_process::environment();
   std::error_code error_code_child;
   std::unique_ptr<boost::process::ipstream> stderrFromAI(new boost::process::ipstream);
@@ -317,6 +321,7 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
 }
 
 void Player::terminate() {
-  child->terminate();
+  if (child)
+    child->terminate();
 }
 
