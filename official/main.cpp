@@ -3,7 +3,14 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
+#if defined(__unix__) || defined(__linux__)
+#include <csignal>
+#endif
+
 int main(int argc, char *argv[]) {
+#if defined(__unix__) || defined(__linux__)
+  std::signal(SIGPIPE, SIG_IGN);
+#endif
   boost::program_options::options_description desc("<option>");
   desc.add_options()
     ("stdinLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player0 standard input")
