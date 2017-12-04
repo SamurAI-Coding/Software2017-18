@@ -174,6 +174,7 @@ AIの応答出力も空白あるいは改行で区切った10進整数の並び�
 
 \subsection{初期化時の入力}
 初期化時のAIの入力は以下の項目がこの順に並ぶものである.
+各項目の直後には改行が置かれ，1つの項目に含まれる複数の整数は{\bf ひとつの空白文字}で区切られる．
 \begin{description}
 \item[考慮時間$t_{given}$] このレースで使える考慮時間をマイクロ秒単位の整数値として.
 \item[制限ステップ数$s_{max}$] ゴールまでのステップ数の上限を整数値として.
@@ -198,7 +199,7 @@ AIの応答出力も空白あるいは改行で区切った10進整数の並び�
   mathescape
 }
 
-\subsection{入力形式}
+初期化時の入力の形式を以下に示す．
 \begin{lstlisting}
 $t_{given}$<@\tiny{\keys{\return}}@>
 $s_{max}$<@\tiny{\keys{\return}}@>
@@ -207,7 +208,7 @@ $d$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{初期化時の出力}
-AIは初期化が終了したことを整数$0$ひとつで伝える.
+AIは初期化が終了したことを整数$0$ひとつ及び改行で伝える.
 
 \begin{lstlisting}
 0<@\tiny{\keys{\return}}@>
@@ -215,6 +216,8 @@ AIは初期化が終了したことを整数$0$ひとつで伝える.
 
 \subsection{ステップごとの入力情報}
 ステップごとのAIの入力は以下の項目がこの順に並ぶものである.
+各項目の直後には改行が置かれ，1つの項目に含まれる複数の整数は{\bf ひとつの空白文字}で区切られる．
+
 \begin{description}
 \item[ステップ$s$] 当該のステップの値を整数ひとつで与える.
 \item[残り考慮時間$t_{left}$] このレースで使える考慮時間の残りをマイクロ秒単位の整数値として.
@@ -226,23 +229,25 @@ AIは初期化が終了したことを整数$0$ひとつで伝える.
   座標に対して$w$個の整数$o_{0,y}, o_{1,y}, \ldots, o_{w-1,y}$が, $y$
   座標の順に与えられる.  $o_{x,y}$が$1$ならば格子点$(x,y)$は障害点であ
   り, $0$ならばそうではない.  ただし, $y<0$であるコース外の格子点につ
-  いては$1$が与えられる.
+  いては$1$が与えられる.なお障害点にのみ，$o_{w-1,y}$ と $o_{0,y+1}$ の間には
+  空白文字でなく改行が区切りとして用いられる．すなわち $2\times d+1$ 行 $w$ 列が入力として与えられる．
 \end{description}
 
-\subsection{入力形式}
+ステップごとのAIの入力の形式を以下に示す．
 \begin{lstlisting}
 $s$<@\tiny{\keys{\return}}@>
 $t_{left}$<@\tiny{\keys{\return}}@>
 $x$ $y$ $v_x$ $v_y$<@\tiny{\keys{\return}}@>
 $x_e$ $x_e$ $v_{x_e}$ $v_{y_e}$<@\tiny{\keys{\return}}@>
-$o_{0,y-d}$ $o_{1,y-d}$ ... $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
-$o_{0,y-d+1}$ $o_{1,y-d+1}$ ... $o_{w-1,y-d+1}$<@\tiny{\keys{\return}}@>
-...
-$o_{0,y+d}$ $o_{1,y+d}$ ... $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d}$ $o_{1,y-d}$ $\ldots$ $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d+1}$ $o_{1,y-d+1}$ $\ldots$ $o_{w-1,y-d+1}$<@\tiny{\keys{\return}}@>
+$\ldots$
+$o_{0,y+d}$ $o_{1,y+d}$ $\ldots$ $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{ステップごとの出力}
 AIは当該ステップの加速度$(a_x,a_y)$をふたつの整数で指定する.
+各整数はひとつ以上の空白で区切り，最後に改行を置く．以下にステップごとの出力の形式を示す．ただし空白は2つ以上あってもよい．
 
 \begin{lstlisting}
 $a_x$ $a_y$<@\tiny{\keys{\return}}@>
