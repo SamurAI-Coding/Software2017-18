@@ -184,7 +184,7 @@ each step, it receives the race state information and responds with an
 acceleration instruction.
 
 The input of the AI is a sequence of decimal integers, separated by
-blank spaces or newlines.  Negative values are prefixed with a minus
+one blank space or newline.  Negative values are prefixed with a minus
 sign.  The initial game information and game state information at each
 step end with a newline.
 
@@ -194,6 +194,7 @@ sign.  {\bf A newline should be placed at the ends of responses.}
 
 \subsection{Initial Input}
 At initiation, AI receives the following input items in this order.
+A newline is put after each item, and multiple integers included in one item are separated by {\bf one space character }.
 \begin{description}
 \item[Remaining Time($t_{given}$)] The remaining time usable in this race in
   microseconds as an integer.
@@ -220,7 +221,9 @@ At initiation, AI receives the following input items in this order.
   mathescape
 }
 
-\subsection{Initial Input Format}
+\noindent
+Following is the initial input format.
+
 \begin{lstlisting}
 $t_{given}$<@\tiny{\keys{\return}}@>
 $s_{max}$<@\tiny{\keys{\return}}@>
@@ -229,7 +232,7 @@ $d$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{Initial Output}
-A player AI should respond with an integer $0$ to acknowledge that its
+A player AI should respond with an integer $0$ and a newline to acknowledge that its
 initiation is done.
 
 \begin{lstlisting}
@@ -238,6 +241,7 @@ initiation is done.
 
 \subsection{Per Step Input}
 At each step, AI receives the following items in this order.
+A newline is put after each item, and multiple integers included in one item are delimited by {\bf one space character }.
 \begin{description}
 \item[Step($s$)] The current step number as a single integer.
 \item[Remaining Time($t_{left}$)] The remaining time usable in this race in
@@ -257,12 +261,15 @@ At each step, AI receives the following items in this order.
   \ldots, o_{w-1,y}$ are given.  $o_{x,y}$ being $1$ means that the
   grid point with its coordinates $(x,y)$ is an obstacle point, and
   $0$ means that it is not.  $1$ is given for grid points out of the
-  rourse, that are, those with $y<0$.
+  rourse, that are, those with $y<0$.  Further, a newline is used as a
+  delimiter instead of a space character between $o_{w-1,y}$ and $o_{0,y+1}$
+  for obstacle points only; that is, $ 2 \times d + 1 $ rows and $w$ columns are given as input.
 
 \end{description}
 
+\noindent
+Following is the per step input format.
 
-\subsection{Per Step Input Format}
 \begin{lstlisting}
 $s$<@\tiny{\keys{\return}}@>
 $t_{left}$<@\tiny{\keys{\return}}@>
@@ -278,6 +285,9 @@ $o_{0,y+d}$ $o_{1,y+d}$ ... $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
 The player AI should output $x$- and $y$-components of the
 acceleration at the clock with two integers $a_{\rm x}$ and $a_{\rm
   y}$ as two integers.
+Each integer must be delimited by spaces, and put a newline at the end.
+The per step output format is shown below.
+Note that you can put more than one space.
 
 \begin{lstlisting}
 $a_{\rm x}$ $a_{\rm y}$<@\tiny{\keys{\return}}@>
@@ -285,34 +295,42 @@ $a_{\rm x}$ $a_{\rm y}$<@\tiny{\keys{\return}}@>
 
 \subsection{Sample Input}
 
+\newlength\defaultparindent
+\defaultparindent=\parindent
 
 \begin{minipage}[t]{.6\textwidth}
 
-右に実際の入力例を示す．これは初期化から2ステップまでの入力となっている．
+The acutual input instance is shown on the right.
+It presents part of the input from initialization to step 2.
 
-初期化時の入力について，考慮時間，制限ステップ数，コースの幅，
-長さと視界がそれぞれ 20000, 100, 15, 100, 8
-となっていることが分かる．
+\parindent=\defaultparindent
 
-この入力を受け取ったらプレイヤーは0と改行をを出力しなければならない．
+At the initial input, it is discovered that
+remaining time, step limit, course width, course length and vision limit
+are 20000, 100, 15, 100 and 8 respectively.
 
-以降はステップごとの入力情報になるが，まず最初のステップについて
-現在のステップと残り考慮時間がそれぞれ 0, 19981
-となっていることが確認できる．このAIは初期化時に 19 [\si{\micro \second}] だけかかり，
-残り 19981 [\si{\micro \second}] 残されているようだ．
+When the AI got the input, they must output "0" and newline.
 
-次の2行は自プレイヤと相手プレイヤの状態が示されており，
-このAIの現在の位置は $x = 5, y = 0$ で
-速度は$x$軸方向$y$軸方向ともに0となっている．
+The forrowing are the per step inputs.
+At the first input, it is found that the current step and the remaining time
+are 0 and 19981 respectively.
+They seems to spend 19 [\si{\micro \second}], and have
+19981 [\si{\micro \second}] as their remaining time.
 
-次に続く17行（$\text{視界:}8 \times 2 + 1$）は視界内の格子点が障害点か否かを示している．
-$y < 0$におけるすべての格子点が障害点になることが分かる．
-前方には中央に障害物が集中しているようだ．
+The next 2 lines show the state of this AI and the opponent AI,
+the current position of this AI is $x = 5, y = 0$, and
+the velocity is 0 on $x$-axis and $y$-axis.
 
-この入力を受けたら，加速度$(a_x, a_y)$を出力する必要がある．
-すると，また次のステップの入力が与えられる．
-先ほどと同様の入力形式となっているが，どうやらこのAIは前ターンの加速度として
-$(-1, 1)$を出力したようだ．
+The next 17($=\text{vision:}8 \times 2 + 1$) lines present that
+the every grid point in sight is the obstacle point or not.
+It comes to light that all grid points where $y < 0$ are obstacle points.
+Additionaly, the obstacles seem to assemble in center ahead.
+
+When they got the input, they must output an acceleration $(a_x, a_y)$.
+Then, they can get the next step input.
+It has the same input format as before,
+and it is known that they seems to output $(-1, 1)$
+as the acceleration of the previous turn.
 
 \end{minipage}
  \hfill
