@@ -16,6 +16,7 @@ struct Option {
 
 enum struct Status {
   VALID = 0,
+  GOALED = 1,
   TIMEOUT = -1,
   INVALID = -2,
   DIED = -3
