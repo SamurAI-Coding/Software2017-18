@@ -184,24 +184,24 @@ each step, it receives the race state information and responds with an
 acceleration instruction.
 
 The input of the AI is a sequence of decimal integers, separated by
-one blank space or newline.  Negative values are prefixed with a minus
+one space or newline.  Negative values are prefixed with a minus
 sign.  The initial game information and game state information at each
 step end with a newline.
 
-AI should respond sequences of decimal integers, separated by blank
-spaces or newlines.  Negative values should be prefixed with a minus
+AI should respond sequences of decimal integers, separated by
+spaces or a newline.  Negative values should be prefixed with a minus
 sign.  {\bf A newline should be placed at the ends of responses.}
 
 \subsection{Initial Input}
-At initiation, AI receives the following input items in this order.
-A newline is put after each item, and multiple integers included in one item are separated by {\bf one space character }.
+At initiation, a player AI receives the following input items in this order.
+A newline is put at the end of each item. Multiple integers within one item (line) are separated by {\bf one space character}.
 \begin{description}
-\item[Remaining Time($t_{given}$)] The remaining time usable in this race in
+\item[Remaining Time ($t_\mathrm{given}$)] The remaining time usable in this race in
   microseconds as an integer.
-\item[Step Limit($s_{max}$)] The limit of number of steps to finish as an integer.
-\item[Course Size] The width($w$) and length($l$) of the race course as two integers.
-\item[Vision Limit($d$)] The depth of the field of vision as an integer
-  $d.$ When the player is at $(x, y),$ information of the opponent and
+\item[Step Limit ($s_\mathrm{max}$)] The limit of number of steps to finish as an integer.
+\item[Course Size] The width ($w$) and length ($l$) of the race course as two integers.
+\item[Vision Limit ($d$)] The depth of the field of vision as an integer
+  $d$. When the player is at $(x, y)$, information of the opponent and
   obstacle points are given for those at $y$-coordinates between $y-d$
   and $y+d$, inclusive.
 \end{description}
@@ -222,11 +222,11 @@ A newline is put after each item, and multiple integers included in one item are
 }
 
 \noindent
-Following is the initial input format.
+Following is the format of the initial input.
 
 \begin{lstlisting}
-$t_{given}$<@\tiny{\keys{\return}}@>
-$s_{max}$<@\tiny{\keys{\return}}@>
+$t_\mathrm{given}$<@\tiny{\keys{\return}}@>
+$s_\mathrm{max}$<@\tiny{\keys{\return}}@>
 $w$ $l$<@\tiny{\keys{\return}}@>
 $d$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
@@ -240,97 +240,100 @@ initiation is done.
 \end{lstlisting}
 
 \subsection{Per Step Input}
-At each step, AI receives the following items in this order.
-A newline is put after each item, and multiple integers included in one item are delimited by {\bf one space character }.
+At each step, a player AI receives the following items in this order.
+A newline is put at the end of each item. Multiple integers included in one item are delimited by {\bf one space character}.
 \begin{description}
-\item[Step($s$)] The current step number as a single integer.
-\item[Remaining Time($t_{left}$)] The remaining time usable in this race in
+\item[Step ($s$)] The current step number as a single integer.
+\item[Remaining Time ($t_\mathrm{left}$)] The remaining time usable in this race in
   microseconds as an integer.
-\item[Player's State] The $x$- and $y$-coordinates of the position and
-  the $x$ and $y$ components the velocity of the player the AI is
+\item[Player's State] The $x$- and $y$-coordinates of the position ($x$ and $y$) and
+  the $x$ and $y$ components the velocity $(v_\mathrm{x}$ and $v_\mathrm{y}$) of the player the AI is
   controlling, as four integers.
-\item[Opponent's State] The $x$- and $y$-coordinates of the position and
-  the $x$ and $y$ components the velocity of the opponent player, as
+\item[Opponent's State] The $x$- and $y$-coordinates of the position ($x_\mathrm{e}$ and $y_\mathrm{e}$) and
+  the $x$ and $y$ components the velocity ($v_{\mathrm{x}_\mathrm{e}}$ and $v_{\mathrm{y}_\mathrm{e}}$) of the opponent player, as
   four integers.  When the opponent player is out of the vision field,
   $-1$ is indicated for the $y$-coordinate of the position and $0$ for
   the remaining.
-\item[Obstacle Points] Information on whether or not grid points in
+\item[Obstacle Points] Information on whether grid points in
   the vision field are obstacle points or not.  It consists of
   $(2\times d+1)\times w$ integers.  For every $y$ in the range
   $y_{\rm min} \le y \le y_{\rm max},$ $w$ integers $o_{0,y}, o_{1,y},
   \ldots, o_{w-1,y}$ are given.  $o_{x,y}$ being $1$ means that the
   grid point with its coordinates $(x,y)$ is an obstacle point, and
   $0$ means that it is not.  $1$ is given for grid points out of the
-  rourse, that are, those with $y<0$.  Further, a newline is used as a
-  delimiter instead of a space character between $o_{w-1,y}$ and $o_{0,y+1}$
-  for obstacle points only; that is, $ 2 \times d + 1 $ rows and $w$ columns are given as input.
+  course, that are, those with $y<0$.  A newline is used as a
+  delimiter instead of a space character between $o_{w-1,y}$ and $o_{0,y+1}$.
+  Thus, this information consists of integers of $2 \times d + 1$ rows by $w$ columns.
 
 \end{description}
 
 \noindent
-Following is the per step input format.
+The following is the format of the per step input.
 
 \begin{lstlisting}
 $s$<@\tiny{\keys{\return}}@>
 $t_{left}$<@\tiny{\keys{\return}}@>
-$x$ $y$ $v_x$ $v_y$<@\tiny{\keys{\return}}@>
-$x_e$ $x_e$ $v_{x_e}$ $v_{y_e}$<@\tiny{\keys{\return}}@>
-$o_{0,y-d}$ $o_{1,y-d}$ ... $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
-$o_{0,y-d+1}$ $o_{1,y-d+1}$ ... $o_{w-1,y-d+1}$<@\tiny{\keys{\return}}@>
-...
-$o_{0,y+d}$ $o_{1,y+d}$ ... $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
+$x$ $y$ $v_\mathrm{x}$ $v_\mathrm{y}$<@\tiny{\keys{\return}}@>
+$x_\mathrm{e}$ $y_\mathrm{e}$ $v_{\mathrm{x}_\mathrm{e}}$ $v_{\mathrm{y}_\mathrm{e}}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d}$ $o_{1,y-d}$ $\ldots$ $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
+$o_{0,y-d+1}$ $o_{1,y-d+1}$ $\ldots$ $o_{w-1,y-d+1}$<@\tiny{\keys{\return}}@>
+$\ldots$
+$o_{0,y+d}$ $o_{1,y+d}$ $\ldots$ $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{Per Step Output}
-The player AI should output $x$- and $y$-components of the
+A player AI should output $x$- and $y$-components of the
 acceleration at the clock with two integers $a_{\rm x}$ and $a_{\rm
   y}$ as two integers.
-Each integer must be delimited by spaces, and put a newline at the end.
-The per step output format is shown below.
-Note that you can put more than one space.
+The integers be delimited by one or more space characters, and a newline should be put after them.
+The following is the format of the per step output.
+Note that there can be more than one space characters between $a_\mathrm{x}$ and $a_\mathrm{y}$.
 
 \begin{lstlisting}
 $a_{\rm x}$ $a_{\rm y}$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
-\subsection{Sample Input}
+\subsection{Input and Output Example}
 
 \newlength\defaultparindent
 \defaultparindent=\parindent
 
 \begin{minipage}[t]{.6\textwidth}
 
-The acutual input instance is shown on the right.
-It presents part of the input from initialization to step 2.
+The text on the right is an example of the input/output to/from a player AI
+during the initiation and the first two steps.
+The black text is the input and the red one is the output.
 
 \parindent=\defaultparindent
 
-At the initial input, it is discovered that
-remaining time, step limit, course width, course length and vision limit
-are 20000, 100, 15, 100 and 8 respectively.
+The first four lines, being the initial input, indicate that
+the remaining time, step limit, course width, course length and vision limit
+are $20000\,\si{\micro\second}$, 100, 15, 100 and 8 respectively.
 
-When the AI got the input, they must output "0" and newline.
+When the AI receives this input, it should output 0 and a newline.
 
-The forrowing are the per step inputs.
-At the first input, it is found that the current step and the remaining time
-are 0 and 19981 respectively.
-They seems to spend 19 [\si{\micro \second}], and have
-19981 [\si{\micro \second}] as their remaining time.
+Then the AI receives the input of the first step.
+0 and 19981 in the first two lines show the current step number
+and the remaining time, respectively.
+The AI can see that it took $19\,\si{\micro\second}$ for its initiation and
+$19,981\,\si{\micro\second}$ remain.
 
-The next 2 lines show the state of this AI and the opponent AI,
-the current position of this AI is $x = 5, y = 0$, and
-the velocity is 0 on $x$-axis and $y$-axis.
+The next two lines show the state of this and the opponent AI players.
+The current position $(x,y)$ and the velocity $(v_\mathrm{x},v_\mathrm{y})$ of this player are $(5,0)$ and
+$(0,0)$, respectively.
+The position $(x_\mathrm{e},y_\mathrm{e})$ and the velocity $(v_{\mathrm{x}_\mathrm{e}},v_{\mathrm{y}_\mathrm{e}})$ of the opponent player are
+$(9,0)$, and $(0,0)$, respectively.
 
-The next 17($=\text{vision:}8 \times 2 + 1$) lines present that
-the every grid point in sight is the obstacle point or not.
-It comes to light that all grid points where $y < 0$ are obstacle points.
-Additionaly, the obstacles seem to assemble in center ahead.
+The next 17 ($=8 \times 2 + 1$ because the vision limit is 8) lines give the information on whether grid points in the vision field are obstacle points or not.
+It is discovered that all the grid points where $y < 0$ are obstacle points
+and there is a large obstacle object straight in front of the player.
 
-When they got the input, they must output an acceleration $(a_x, a_y)$.
-Then, they can get the next step input.
-It has the same input format as before,
-and it is known that they seems to output $(-1, 1)$
-as the acceleration of the previous turn.
+When the AI receives the input, it should output two integers as an acceleration $(a_\mathrm{x}, a_\mathrm{y})$;
+it output $(-1,1)$ in this example.
+Then the AI receives the input of the second step
+in the same format to the first step.
+Then the AI should output an acceleration again.
+Such inputs and outputs are repeated until the race ends.
 
 \end{minipage}
  \hfill
@@ -340,6 +343,7 @@ as the acceleration of the previous turn.
 100
 15 100
 8
+<@\textcolor{red}{0}@>
 0
 19981
 5 0 0 0
@@ -361,6 +365,7 @@ as the acceleration of the previous turn.
 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0
 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0
 0 0 0 0 1 1 1 1 1 1 0 0 0 0 0
+<@\textcolor{red}{-1 1}@>
 1
 19955
 4 1 -1 1
@@ -382,6 +387,7 @@ as the acceleration of the previous turn.
 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0
 0 0 0 0 1 1 1 1 1 1 0 0 0 0 0
 0 0 0 1 1 1 1 1 1 1 0 0 0 0 0
+<@\textcolor{red}{0 1}@>
 \end{lstlisting}
 \end{minipage}
 
