@@ -237,10 +237,18 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   sendToAI(toAI, option.stdinLogStream, "%d ", position.y);
   sendToAI(toAI, option.stdinLogStream, "%d ", velocity.x);
   sendToAI(toAI, option.stdinLogStream, "%d\n", velocity.y);
-  sendToAI(toAI, option.stdinLogStream, "%d ", op.position.x);
-  sendToAI(toAI, option.stdinLogStream, "%d ", op.position.y);
-  sendToAI(toAI, option.stdinLogStream, "%d ", op.velocity.x);
-  sendToAI(toAI, option.stdinLogStream, "%d\n", op.velocity.y);
+  if (std::abs(op.position.y - position.y) <= course.vision
+      && op.status == Status::VALID) {
+    sendToAI(toAI, option.stdinLogStream, "%d ", op.position.x);
+    sendToAI(toAI, option.stdinLogStream, "%d ", op.position.y);
+    sendToAI(toAI, option.stdinLogStream, "%d ", op.velocity.x);
+    sendToAI(toAI, option.stdinLogStream, "%d\n", op.velocity.y);
+  } else {
+    sendToAI(toAI, option.stdinLogStream, "%d ", 0);
+    sendToAI(toAI, option.stdinLogStream, "%d ", -1);
+    sendToAI(toAI, option.stdinLogStream, "%d ", 0);
+    sendToAI(toAI, option.stdinLogStream, "%d\n", 0);
+  }
   for (int dy = -course.vision; dy <= course.vision; ++dy) {
     for (int x = 0; x < course.width; ++x) {
       if (x) {
