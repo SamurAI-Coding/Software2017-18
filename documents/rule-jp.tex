@@ -12,15 +12,15 @@
 \newcommand\secref[1]{\mbox{\ref{#1}節}}
 \newcommand\gamename{サムライジョッキー}
 
-\title{{\gamename}ゲームルール (暫定版)}
+\title{{\gamename}ゲームルール}
 \author{情報処理学会プログラミングコンテスト委員会}
-\date{2017/09/16}
+\date{2017/12/26}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-  SamurAI Coding 2017--2018 に用いるゲームのルール案を述べる.
+  SamurAI Coding 2017--18 に用いるゲームのルール案を述べる.
   このルール案は暫定版であり, 詳細については今後の改訂の可能性がある.
 \end{abstract}
 
@@ -89,15 +89,15 @@ AIが1レースで使える{\bf 考慮時間}の合計には, 制限を設ける
 
 \subsection{プレイヤの状態と加減速指示}
 プレイヤは各ステップの開始時において{\bf 位置} $(x, y)$ と{\bf 速度}
-$(v_x, v_y)$ を持つ.
+$(v_\mathrm{x}, v_\mathrm{y})$ を持つ.
 
-AIはステップごとに速度を変更する{\bf 加速度} $(a_x, a_y)$を指定する.
-$a_x, a_y$は各々$-1, 0, 1$のいずれかである.
+AIはステップごとに速度を変更する{\bf 加速度} $(a_\mathrm{x}, a_\mathrm{y})$を指定する.
+$a_\mathrm{x}, a_\mathrm{y}$は各々$-1, 0, 1$のいずれかである.
 
 後述するコースアウトや衝突によって動けない場合を除き, 次ステップのプレ
-イヤの位置の座標は $(x+v_x+a_x, y+v_y+a_y)$ となる. この位置を以下では
+イヤの位置の座標は $(x+v_\mathrm{x}+a_\mathrm{x}, y+v_\mathrm{y}+a_\mathrm{y})$ となる. この位置を以下では
 次ステップにおける{\bf 予定位置}と呼ぶ. また, 次ステップにおけるプレイ
-ヤの速度はコースアウトや衝突の有無に関わらず $(v_x+a_x, v_y+a_y)$ とな
+ヤの速度はコースアウトや衝突の有無に関わらず $(v_\mathrm{x}+a_\mathrm{x}, v_\mathrm{y}+a_\mathrm{y})$ とな
 る.
 
 \begin{wrapfigure}{R}{0.28\columnwidth}
@@ -142,8 +142,8 @@ $a_x, a_y$は各々$-1, 0, 1$のいずれかである.
 
 衝突が生じた場合は, {\bf 優先権}を持つプレイヤの次ステップの位置は予定
 位置に, 優先権のないプレイヤの位置は元のままになる.  いずれのプレイヤ
-についても, 次ステップの速度は衝突しなかった場合と同じ$(v_x+a_x,
-v_y+a_y)$となる.
+についても, 次ステップの速度は衝突しなかった場合と同じ$(v_\mathrm{x}+a_\mathrm{x},
+v_\mathrm{y}+a_\mathrm{y})$となる.
 
 優先権を持つのは, 位置の$y$座標がより小さいプレイヤである.  $y$座標が
 同一である場合, 位置の$x$座標がより小さいプレイヤが優先権を持つ. ただ
@@ -240,7 +240,7 @@ AIは初期化が終了したことを整数$0$ひとつ及び改行で伝える
 
 \begin{description}
 \item[ステップ$s$] 当該のステップの値を整数ひとつで与える.
-\item[残り考慮時間$t_{left}$] このレースで使える考慮時間の残りをマイクロ秒単位の整数値として.
+\item[残り考慮時間$t_\mathrm{left}$] このレースで使える考慮時間の残りをマイクロ秒単位の整数値として.
 \item[自プレイヤの状態] 当該のAIが制御するプレイヤの位置の$x$座標と$y$座標, 速度の$x$成分$v_\mathrm{x}$と$y$成分$v_\mathrm{y}$の4整数.
 \item[相手プレイヤの状態] 相手プレイヤの位置の$x$座標$x_\mathrm{e}$と$y$座標$y_\mathrm{e}$, 速度の$x$成分$v_{\mathrm{x}_\mathrm{e}}$と$y$成分$v_{\mathrm{y}_\mathrm{e}}$の4整数.
   ただし, 相手プレイヤの位置が視界の外であれば, $y$座標は$-1$, 他は$0$になる.
@@ -256,7 +256,7 @@ AIは初期化が終了したことを整数$0$ひとつ及び改行で伝える
 ステップごとのAIの入力の形式を以下に示す．
 \begin{lstlisting}
 $s$<@\tiny{\keys{\return}}@>
-$t_{left}$<@\tiny{\keys{\return}}@>
+$t_\mathrm{left}$<@\tiny{\keys{\return}}@>
 $x$ $y$ $v_\mathrm{x}$ $v_\mathrm{y}$<@\tiny{\keys{\return}}@>
 $x_\mathrm{e}$ $y_\mathrm{e}$ $v_{\mathrm{x}_\mathrm{e}}$ $v_{\mathrm{y}_\mathrm{e}}$<@\tiny{\keys{\return}}@>
 $o_{0,y-d}$ $o_{1,y-d}$ $\ldots$ $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
@@ -266,11 +266,11 @@ $o_{0,y+d}$ $o_{1,y+d}$ $\ldots$ $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{ステップごとの出力}\label{sec:output_step}
-AIは当該ステップの加速度$(a_x,a_y)$をふたつの整数で指定する.
+AIは当該ステップの加速度$(a_\mathrm{x},a_\mathrm{y})$をふたつの整数で指定する.
 各整数はひとつ以上の空白で区切り，最後に改行を置く．以下にステップごとの出力の形式を示す．ただし空白は2つ以上あってもよい．
 
 \begin{lstlisting}
-$a_x$ $a_y$<@\tiny{\keys{\return}}@>
+$a_\mathrm{x}$ $a_\mathrm{y}$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{入出力例}
@@ -302,7 +302,7 @@ $19,981\,\si{\micro\second}$の考慮時間が残されていることがわか�
 この例では$y < 0$におけるすべての格子点が障害点であること，
 および前方正面に大きな障害物があることがわかる．
 
-AIはこの入力を受け取ったら，加速度$(a_x, a_y)$を出力する必要がある．
+AIはこの入力を受け取ったら，加速度$(a_\mathrm{x}, a_\mathrm{y})$を出力する必要がある．
 この例では$(-1, 1)$を出力している．
 すると，また次のステップの入力が第1ステップと同じ形式で与えられるので，
 AIはまた加速度を出力する．これがレース終了まで繰り返される．
