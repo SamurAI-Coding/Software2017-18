@@ -12,16 +12,16 @@
 \newcommand\secref[1]{\mbox{Section~\ref{#1}}}
 \newcommand\gamename{SamurAI Jockey}
 
-\title{{\gamename} Game Rule (draft)}
+\title{{\gamename} Game Rule}
 \author{IPSJ Programming Contest Committee}
-\date{2017/09/16}
+\date{2017/12/26}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-  A draft version of the game rule for SamurAI Coding 2017--2018.
-  Note that this is a draft and is subject to change.
+  This document presents the game rules for SamurAI Coding 2017--18.
+  % Note that this is a draft and is subject to change.
 \end{abstract}
 
 \section{Game Outline}
@@ -83,18 +83,18 @@ response.  Two players never occupy the same position at a time during
 a race.
 
 The race starts from step 0 and the step number is incremented one by
-one.  The race ends when both of the players finish or become disqualified (\secref{sec:disqualification}).  If one or more
+one.  The race ends when both of the players finish or become \emph{disqualified} (\secref{sec:disqualification}).  If one or more
 players can't finish within the step limit, however, the race ends at
 that step and the unfinished player is disqualified.
 
 \subsection{Time Control}\label{sec:consideration_time}
 A limit is imposed on the total of time a player can use in one race.
 The clock starts or resumes when the game manager program has finished
-sending information to the player AI and stops when it has finished
-receiving the response from the player AI.  The player running out of
+sending information to the AI and stops when it has finished
+receiving the response from the AI.  The player running out of
 the time is disqualified.
-\footnote{The time limit is not fixed yet but is expected to be some
-  tens of seconds.}
+% \footnote{The time limit is not fixed yet but is expected to be some
+%   tens of seconds.}
 
 \subsection{Player States and Acceleration Instructions}
 A player has its {\em position} $(x, y)$ and {\em velocity} $(v_{\rm
@@ -176,6 +176,7 @@ A player that committed a course out or made a collision without
 priority is stopped, and even if its planned position has
 $y$-coordinate greater than or equal to the course length, the player
 does not finish the race.
+\footnote{Note that there may be obstacles on and beyond the goal line.}
 
 The player that finished the race is removed from the course.  The
 race continues if the opponent player has not finished the race or
@@ -186,7 +187,7 @@ A player is disqualified in either one of the following cases.
 \begin{itemize}
 \item The player can't finish within the step limit (the preface of \secref{sec:race_process}).
 \item The player exceeds the time limit (\secref{sec:consideration_time}).
-\item The output from the player AI violates the regulations in Sections~\ref{sec:output_init} and \ref{sec:output_step}.
+\item The output from the AI violates the regulations in Sections~\ref{sec:output_init} and \ref{sec:output_step}.
 \end{itemize}
 
 The disqualified player is removed from the course.  The race
@@ -215,7 +216,7 @@ spaces or a newline.  Negative values should be prefixed with a minus
 sign.  {\bf A newline should be placed at the ends of responses.}
 
 \subsection{Initial Input}
-At initiation, a player AI receives the following input items in this order.
+At initiation, an AI receives the following input items in this order.
 A newline is put at the end of each item. Multiple integers within one item (line) are separated by {\bf one space character}.
 \begin{description}
 \item[Remaining Time ($t_\mathrm{given}$)] The remaining time usable in this race in
@@ -254,7 +255,7 @@ $d$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{Initial Output}\label{sec:output_init}
-A player AI should respond with an integer $0$ and a newline to acknowledge that its
+An AI should respond with an integer $0$ and a newline to acknowledge that its
 initiation is done.
 
 \begin{lstlisting}
@@ -262,7 +263,7 @@ initiation is done.
 \end{lstlisting}
 
 \subsection{Per Step Input}
-At each step, a player AI receives the following items in this order.
+At each step, an AI receives the following items in this order.
 A newline is put at the end of each item. Multiple integers included in one item are delimited by {\bf one space character}.
 \begin{description}
 \item[Step ($s$)] The current step number as a single integer.
@@ -294,7 +295,7 @@ The following is the format of the per step input.
 
 \begin{lstlisting}
 $s$<@\tiny{\keys{\return}}@>
-$t_{left}$<@\tiny{\keys{\return}}@>
+$t_\mathrm{left}$<@\tiny{\keys{\return}}@>
 $x$ $y$ $v_\mathrm{x}$ $v_\mathrm{y}$<@\tiny{\keys{\return}}@>
 $x_\mathrm{e}$ $y_\mathrm{e}$ $v_{\mathrm{x}_\mathrm{e}}$ $v_{\mathrm{y}_\mathrm{e}}$<@\tiny{\keys{\return}}@>
 $o_{0,y-d}$ $o_{1,y-d}$ $\ldots$ $o_{w-1,y-d}$<@\tiny{\keys{\return}}@>
@@ -304,10 +305,11 @@ $o_{0,y+d}$ $o_{1,y+d}$ $\ldots$ $o_{w-1,y+d}$<@\tiny{\keys{\return}}@>
 \end{lstlisting}
 
 \subsection{Per Step Output}\label{sec:output_step}
-A player AI should output $x$- and $y$-components of the
+An AI should output $x$- and $y$-components of the
 acceleration at the clock with two integers $a_{\rm x}$ and $a_{\rm
   y}$ as two integers.
-The integers be delimited by one or more space characters, and a newline should be put after them.
+$a_{\rm x}$ and $a_{\rm y}$ should be one of $-1$, $0$, or $1$.
+The integers should be delimited by one or more space characters, and a newline should be put after them.
 The following is the format of the per step output.
 Note that there can be more than one space characters between $a_\mathrm{x}$ and $a_\mathrm{y}$.
 
@@ -322,7 +324,7 @@ $a_{\rm x}$ $a_{\rm y}$<@\tiny{\keys{\return}}@>
 
 \begin{minipage}[t]{.6\textwidth}
 
-The text on the right is an example of the input/output to/from a player AI
+The text on the right is an example of the input/output to/from an AI
 during the initiation and the first two steps.
 The black text is the input and the red one is the output.
 
