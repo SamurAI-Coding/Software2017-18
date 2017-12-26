@@ -14,14 +14,14 @@
 
 \title{{\gamename} Game Rule (draft)}
 \author{IPSJ Programming Contest Committee}
-\date{2017/09/16}
+\date{2017/12/16}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-  A draft version of the game rule for SamurAI Coding 2017--2018.
-  Note that this is a draft and is subject to change.
+  This document presents the game rules for SamurAI Coding 2017--18.
+  % Note that this is a draft and is subject to change.
 \end{abstract}
 
 \section{Game Outline}
@@ -93,8 +93,8 @@ The clock starts or resumes when the game manager program has finished
 sending information to the player AI and stops when it has finished
 receiving the response from the player AI.  The player running out of
 the time is disqualified.
-\footnote{The time limit is not fixed yet but is expected to be some
-  tens of seconds.}
+% \footnote{The time limit is not fixed yet but is expected to be some
+%   tens of seconds.}
 
 \subsection{Player States and Acceleration Instructions}
 A player has its {\em position} $(x, y)$ and {\em velocity} $(v_{\rm
@@ -176,6 +176,7 @@ A player that committed a course out or made a collision without
 priority is stopped, and even if its planned position has
 $y$-coordinate greater than or equal to the course length, the player
 does not finish the race.
+\footnote{Note that there may be obstacles on and beyond the goal line.}
 
 The player that finished the race is removed from the course.  The
 race continues if the opponent player has not finished the race or
