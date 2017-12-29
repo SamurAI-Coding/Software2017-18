@@ -68,6 +68,9 @@ bool Course::obstacled(const Point &from, const Point &to) const {
     int ny = y + ystep;
     for (int x = x1; x != x2; x += xstep) {
       int nx = x + xstep;
+      if (obstacle[y][x] == ObstState::OBSTACLE && m.goesThru({x, y})) {
+	return true;
+      }
       if ((obstacle[y][x] == ObstState::OBSTACLE && obstacle[ny][nx] == ObstState::OBSTACLE &&
      LineSegment(Point(x, y), Point(nx, ny)).intersects(m)) ||
     (obstacle[ny][x] == ObstState::OBSTACLE && obstacle[ny][nx] == ObstState::OBSTACLE &&
