@@ -190,6 +190,7 @@ void RaceCourse::writeJson(ostream &out) {
   out << "{" << endl
       << "   \"filetype\": \"race course\"," << endl
       << "   \"width\": " << width  << ", \"length\": " << length << ',' << endl
+      << "   \"vision\": " << vision << ", \"thinkTime\" : " << thinkTime << ", \"stepLimit\" : " << stepLimit << ',' << endl
       << "   \"x0\": " << startX[0] << ", \"x1\": " << startX[1] << ',' << endl;
   out << "  \"obstacles\": [";
   int i = 0;
