@@ -1,8 +1,8 @@
 SamurAI Jockey ゲーム用ソフトウェアについて
 
-                                                            2017/12/08
+                                                            2017/12/30
 
-このディレクトリには SamurAI Coding 2017-2018 で用いるために準備中の
+このディレクトリには SamurAI Coding 2017-18 で用いるために準備中の
 SamurAI Jockey ゲーム用のソフトウェアが入っています。
 
 1. ディレクトリ構成
@@ -33,8 +33,8 @@ viewer/viewer.html をブラウザで開きます。
 
 documents ディレクトリには以下の文書が入っています。
 
-  rule-jp.pdf: ゲームのルール案
-  rule-en.pdf: ゲームのルール案 (英語版)
+  rule-jp.pdf: ゲームのルール
+  rule-en.pdf: ゲームのルール (英語版)
   datafiles.pdf: 情報交換に用いるファイルの形式
 
 4. インストール
@@ -158,7 +158,7 @@ Javascript を利用できるウェブブラウザーならすぐ実行できま
     brew install boost
   でインストールできます。
 
-  brew をインストールしていない、 brew をインストールしたくない方は
+  brew をインストールしておらず、brew をインストールしたくない方は
   (1) Linux の方法に準じてください。
 
 (3) Windows
@@ -183,7 +183,7 @@ Javascript を利用できるウェブブラウザーならすぐ実行できま
       C:\Users\<User name>\boost\<Boost Version>
         ex) C:\Users\samurai\boost\boost_1_65_1
     に解凍したとします。このとき C:\Users\<User name>\boost\<Boost Version> を BOOST_ROOT として環境変数に登録してください。
-    次に Native Tools コマンドプロンプトを開いてください。例えば Visual Studio 2017 をインストールしていたら
+    次に Native Tools コマンドプロンプトを開いてください。例えば Visual Studio 2017 Community Edition をインストールしていたら
       "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
     などがそれに該当します。
     以下のコマンドを実行します。下記コマンドは Visual Studio 2017 がインストールされた環境に合わせています。
@@ -196,6 +196,7 @@ Javascript を利用できるウェブブラウザーならすぐ実行できま
     他バージョンについては
       https://ja.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#%E8%A3%BD%E5%93%81%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E3%81%A8%E5%86%85%E9%83%A8%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3
     が参考になるかと思います。
+    インストールが終了したら、トップレベルの SamurAI_Coding_2017-18_Software.sln を開くとソフトウエアをビルドするためのソリューションが開かれます。
 
 
 以上
