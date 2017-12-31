@@ -76,7 +76,7 @@ The following command line arguments should be specified.
     "sample/sample-course.smrjky" is a sample of a course file.
   <player0>, <player1>:
     Pathnames of executables of AI programs to compete in the race.
-    A sample player executable can be build as "player/greedy"
+    A sample player executable can be built as "player/greedy"
     by running "make" in the "player" directory.
   <name0>, <name1>:
     Names of AI programs to be used in the race viewer.
