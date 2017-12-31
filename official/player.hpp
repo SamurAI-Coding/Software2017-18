@@ -8,7 +8,7 @@
 
 struct RaceCourse;
 struct Option {
-  std::shared_ptr<std::ofstream> stdoutLogStream;
+  std::shared_ptr<std::ofstream> stdinLogStream;
   std::shared_ptr<std::ofstream> stderrLogStream;
   boost::optional<std::vector<std::string>> pauseCommand;
   boost::optional<std::vector<std::string>> resumeCommand;

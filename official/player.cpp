@@ -54,21 +54,21 @@ static void handShake(std::unique_ptr<boost::process::ipstream> in, std::promise
 }
 
 template <class... Args>
-void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, std::shared_ptr<std::ofstream> stdoutLogStream, const char *fmt, Args... args) {
+void sendToAI(std::unique_ptr<boost::process::opstream>&  toAI, std::shared_ptr<std::ofstream> stdinLogStream, const char *fmt, Args... args) {
   int n = std::snprintf(nullptr, 0, fmt, args...);
   std::unique_ptr<char[]> cstr(new char[n + 2]);
   std::memset(cstr.get(), 0, n + 2);
   std::snprintf(cstr.get(), n + 1, fmt, args...);
   std::string str(cstr.get());
   *toAI << str;
-  if (stdoutLogStream.get() != nullptr) {
-    *stdoutLogStream << str;
+  if (stdinLogStream.get() != nullptr) {
+    *stdinLogStream << str;
   }
 }
 
-void flushToAI(std::unique_ptr<boost::process::opstream>& toAI, std::shared_ptr<std::ofstream> stdoutLogStream) {
+void flushToAI(std::unique_ptr<boost::process::opstream>& toAI, std::shared_ptr<std::ofstream> stdinLogStream) {
   toAI->flush();
-  if (stdoutLogStream.get() != nullptr) stdoutLogStream->flush();
+  if (stdinLogStream.get() != nullptr) stdinLogStream->flush();
 }
 
 static void logging(std::promise<void> promise, std::unique_ptr<std::istream> input, std::shared_ptr<std::ostream> output, std::shared_ptr<std::mutex> mutex, int MAX_SIZE) {
@@ -129,12 +129,12 @@ Player::Player(string command, const RaceCourse &course, int xpos,
     *option.stderrLogStream << "[system] Try : hand shake" << endl;
   }
   stderrLogger = std::unique_ptr<Logger>(new Logger(std::move(stderrFromAI), option.stderrLogStream, 1 << 15));
-  sendToAI(toAI, option.stdoutLogStream, "%d\n", course.thinkTime);
-  sendToAI(toAI, option.stdoutLogStream, "%d\n", course.stepLimit);
-  sendToAI(toAI, option.stdoutLogStream, "%d ", course.width);
-  sendToAI(toAI, option.stdoutLogStream, "%d\n", course.length);
-  sendToAI(toAI, option.stdoutLogStream, "%d\n", course.vision);
-  flushToAI(toAI, option.stdoutLogStream);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.thinkTime);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.stepLimit);
+  sendToAI(toAI, option.stdinLogStream, "%d ", course.width);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.length);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", course.vision);
+  flushToAI(toAI, option.stdinLogStream);
   std::promise<std::pair<std::unique_ptr<boost::process::ipstream>, Message>> promise;
   std::future<std::pair<std::unique_ptr<boost::process::ipstream>, Message>> future = promise.get_future();
   std::chrono::milliseconds remain(timeLeft);
@@ -231,34 +231,34 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
     *option.stderrLogStream << "[system] ================================" << std::endl;
     *option.stderrLogStream << "[system] turn: " << c << std::endl;
   }
-  sendToAI(toAI, option.stdoutLogStream, "%d\n", c);
-  sendToAI(toAI, option.stdoutLogStream, "%" PRId64 "\n", timeLeft);
-  sendToAI(toAI, option.stdoutLogStream, "%d ", position.x);
-  sendToAI(toAI, option.stdoutLogStream, "%d ", position.y);
-  sendToAI(toAI, option.stdoutLogStream, "%d ", velocity.x);
-  sendToAI(toAI, option.stdoutLogStream, "%d\n", velocity.y);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", c);
+  sendToAI(toAI, option.stdinLogStream, "%" PRId64 "\n", timeLeft);
+  sendToAI(toAI, option.stdinLogStream, "%d ", position.x);
+  sendToAI(toAI, option.stdinLogStream, "%d ", position.y);
+  sendToAI(toAI, option.stdinLogStream, "%d ", velocity.x);
+  sendToAI(toAI, option.stdinLogStream, "%d\n", velocity.y);
   if (std::abs(op.position.y - position.y) <= course.vision
       && op.status == Status::VALID) {
-    sendToAI(toAI, option.stdoutLogStream, "%d ", op.position.x);
-    sendToAI(toAI, option.stdoutLogStream, "%d ", op.position.y);
-    sendToAI(toAI, option.stdoutLogStream, "%d ", op.velocity.x);
-    sendToAI(toAI, option.stdoutLogStream, "%d\n", op.velocity.y);
+    sendToAI(toAI, option.stdinLogStream, "%d ", op.position.x);
+    sendToAI(toAI, option.stdinLogStream, "%d ", op.position.y);
+    sendToAI(toAI, option.stdinLogStream, "%d ", op.velocity.x);
+    sendToAI(toAI, option.stdinLogStream, "%d\n", op.velocity.y);
   } else {
-    sendToAI(toAI, option.stdoutLogStream, "%d ", 0);
-    sendToAI(toAI, option.stdoutLogStream, "%d ", -1);
-    sendToAI(toAI, option.stdoutLogStream, "%d ", 0);
-    sendToAI(toAI, option.stdoutLogStream, "%d\n", 0);
+    sendToAI(toAI, option.stdinLogStream, "%d ", 0);
+    sendToAI(toAI, option.stdinLogStream, "%d ", -1);
+    sendToAI(toAI, option.stdinLogStream, "%d ", 0);
+    sendToAI(toAI, option.stdinLogStream, "%d\n", 0);
   }
   for (int dy = -course.vision; dy <= course.vision; ++dy) {
     for (int x = 0; x < course.width; ++x) {
       if (x) {
-        sendToAI(toAI, option.stdoutLogStream, " ", 0);
+        sendToAI(toAI, option.stdinLogStream, " ", 0);
       }
-      sendToAI(toAI, option.stdoutLogStream, "%d", course.obstacle[position.y + dy][x] ? 1 : 0);
+      sendToAI(toAI, option.stdinLogStream, "%d", course.obstacle[position.y + dy][x] ? 1 : 0);
     }
-    sendToAI(toAI, option.stdoutLogStream, "\n", 0);
+    sendToAI(toAI, option.stdinLogStream, "\n", 0);
   }
-  flushToAI(toAI, option.stdoutLogStream);
+  flushToAI(toAI, option.stdinLogStream);
   std::promise<std::pair<std::unique_ptr<boost::process::ipstream>, Message4Act>> promise;
   std::future<std::pair<std::unique_ptr<boost::process::ipstream>, Message4Act>> future = promise.get_future();
   stderrLogger->mutex->unlock();

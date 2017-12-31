@@ -13,10 +13,10 @@ int main(int argc, char *argv[]) {
 #endif
   boost::program_options::options_description desc("<option>");
   desc.add_options()
-    ("stdoutLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player0's standard output")
-    ("stdoutLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player1's standard output")
-    ("stderrLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player0's standard error")
-    ("stderrLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player1's standard error")
+    ("stdinLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for dump data that this program outputs to player0's standard input")
+    ("stdinLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for dump data that this program outputs to player1's standard input")
+    ("stderrLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for error information with the output of player0's standard error")
+    ("stderrLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for error information with the output of player1's standard error")
     ("pauseP0", boost::program_options::value<std::string>()->value_name("<command>"), "pause command for player0")
     ("resumeP0", boost::program_options::value<std::string>()->value_name("<command>"), "resume command for player0")
     ("pauseP1", boost::program_options::value<std::string>()->value_name("<command>"), "pause command for player1")
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
     }
   };
   for (int i = 0; i < 2; ++i) {
-    options[i].stdoutLogStream = take_ofstream(vm, "stdoutLogFile" + std::to_string(i));
+    options[i].stdinLogStream = take_ofstream(vm, "stdinLogFile" + std::to_string(i));
     options[i].stderrLogStream = take_ofstream(vm, "stderrLogFile" + std::to_string(i));
     options[i].pauseCommand = take_command(vm, "pauseP" + std::to_string(i));
     options[i].resumeCommand = take_command(vm, "resumeP" + std::to_string(i));
