@@ -46,7 +46,7 @@ A C++ language system supporting C++11 and the Boost library are required.
 The Boost library must be Version 1.64.0 or newer.
 Check the version of Boost if you install it using package manager.
 Especially, apt (Advanced Package Tool) on Ubuntu
-cannot install Boost of the requierd version from their standard package archives.
+cannot install Boost of the required version from their standard package archives.
 Please get and install Boost manually referring to the following website.
   http://www.boost.org/doc/libs/1_66_0/more/getting_started/index.html
 You can choose full installation, but our game manager only requires
@@ -116,7 +116,7 @@ The following command line arguments should be specified.
 
 None
 
-Latest infomation:
+Latest information:
   https://github.com/SamurAI-Coding/Software2017-18/issues
 When you faced any issue, please report from this website or by e-mail:
   samurai-contact@ipsj.or.jp
@@ -163,11 +163,11 @@ The followings show examples of installation operations on several platforms.
     This environment variable will be used in the "make" process.
 
   (3-2) Visual Studio
-    Suppose that the zip archive of latest Boost libraries is extrated to the following path:
+    Suppose that the zip archive of latest Boost libraries is extracted to the following path:
       C:\Users\<User name>\boost\<Boost Version>
       (e.g., C:\Users\samurai\boost\boost_1_66_0)
     Then, you need to register the environment variable `BOOST_ROOT` as the path written above.
-    You can check this environmnet variable by the following command on a command prompt (cmd.exe).
+    You can check this environment variable by the following command on a command prompt (cmd.exe).
       echo %BOOST_ROOT%
     Next, open a Native tools command prompt.
     For example, if you have installed Visual Studio 2017 Community Edition, execute
@@ -183,4 +183,4 @@ The followings show examples of installation operations on several platforms.
       https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B
     will be helpful.
     After installation, open "SamurAI_Coding_2017-18_Software.sln" in the top level directory.
-    This is the solutiuon file to build our software.
+    This is the solution file to build our software.
