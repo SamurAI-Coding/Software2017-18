@@ -50,17 +50,18 @@ bool RaceState::playOneStep(int c) {
       }
     }
   }
-  // Going through the opponent's position is not allowed even with precedence
-  for (int i = 0; i < 2; ++i) {
-    if (res[i] == FUNNY) {
-      continue;
-    }
-    if (move[i].goesThru(players[1 - i].position)) {
-      res[i] = STOPPED;
-    }
-  }
   if (!goaled[0] && !goaled[1]) {
-    // Check collision
+    // Check collision if both sides have not reached the goal yet
+    // Going through the opponent's position is not allowed even with precedence
+    for (int i = 0; i < 2; ++i) {
+      if (res[i] == FUNNY) {
+        continue;
+      }
+      if (move[i].goesThru(players[1 - i].position)) {
+        res[i] = STOPPED;
+      }
+    }
+    // Check intersection
     bool moveCollision = move[0].intersects(move[1]) && res[0] == NORMAL && res[1] == NORMAL;
     if (moveCollision) {
       bool prec0 =
@@ -91,6 +92,7 @@ bool RaceState::playOneStep(int c) {
       if (res[p] == NORMAL) {
 	if (nextPosition[p].y >= course->length) {
 	  goaled[p] = true;
+	  players[p].status = Status::GOALED;
 	  goalTime[p] =
 	    c-1+
 	    (double)(course->length- players[p].position.y)/nextVelocity[p].y;

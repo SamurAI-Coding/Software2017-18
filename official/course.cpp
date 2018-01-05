@@ -69,6 +69,9 @@ bool RaceCourse::collides(const LineSegment &m) const {
     int ny = y + ystep;
     for (int x = x1; x != x2; x += xstep) {
       int nx = x + xstep;
+      if (obstacle[y][x] && m.goesThru({x, y})) {
+	return true;
+      }
       if ((obstacle[y][x] && obstacle[ny][nx] &&
 	   LineSegment(Point(x, y), Point(nx, ny)).intersects(m)) ||
 	  (obstacle[ny][x] && obstacle[ny][nx] &&
@@ -187,6 +190,7 @@ void RaceCourse::writeJson(ostream &out) {
   out << "{" << endl
       << "   \"filetype\": \"race course\"," << endl
       << "   \"width\": " << width  << ", \"length\": " << length << ',' << endl
+      << "   \"vision\": " << vision << ", \"thinkTime\" : " << thinkTime << ", \"stepLimit\" : " << stepLimit << ',' << endl
       << "   \"x0\": " << startX[0] << ", \"x1\": " << startX[1] << ',' << endl;
   out << "  \"obstacles\": [";
   int i = 0;

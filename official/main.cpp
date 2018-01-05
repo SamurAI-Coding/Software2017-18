@@ -3,13 +3,20 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
+#if defined(__unix__) || defined(__linux__)
+#include <csignal>
+#endif
+
 int main(int argc, char *argv[]) {
+#if defined(__unix__) || defined(__linux__)
+  std::signal(SIGPIPE, SIG_IGN);
+#endif
   boost::program_options::options_description desc("<option>");
   desc.add_options()
-    ("stdinLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player0 standard input")
-    ("stdinLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player1 standard input")
-    ("stderrLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player0 standard error output")
-    ("stderrLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for player1 standard error output")
+    ("stdinLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for dump data that this program outputs to player0's standard input")
+    ("stdinLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for dump data that this program outputs to player1's standard input")
+    ("stderrLogFile0", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for error information with the output of player0's standard error")
+    ("stderrLogFile1", boost::program_options::value<std::string>()->value_name("<filename>"), "logfile name for error information with the output of player1's standard error")
     ("pauseP0", boost::program_options::value<std::string>()->value_name("<command>"), "pause command for player0")
     ("resumeP0", boost::program_options::value<std::string>()->value_name("<command>"), "resume command for player0")
     ("pauseP1", boost::program_options::value<std::string>()->value_name("<command>"), "pause command for player1")
@@ -27,8 +34,9 @@ int main(int argc, char *argv[]) {
     boost::program_options::store(parsing_result, vm);
     boost::program_options::notify(vm);
     unnamed_args = boost::program_options::collect_unrecognized(parsing_result.options, boost::program_options::include_positional);
-  } catch (std::exception) {
+  } catch (std::exception& e) {
     cerr << "invalid command line arguments" << endl;;
+    cerr << e.what() << endl;
     help_message();
     return 1;
   }
