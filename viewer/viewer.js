@@ -284,11 +284,11 @@ function drawCourse() {
   var overviewWidth = overviewPitch*(course.width+1);
   // The rest of the space is used by the magnified display
   fieldWidth = svgWidth-overviewWidth-2*xmargin;
-  mag = fieldWidth/course.width;
+  mag = Math.min(64, Math.min(fieldWidth/course.width, svgHeight/11));
   field = document.createElementNS(ns, 'svg');
   field.setAttribute('height', svgHeight);
   field.setAttribute('width', fieldWidth);
-  field.setAttribute('x', 0);
+  field.setAttribute('x', Math.max(0, (fieldWidth - (course.width + 1) * mag) / 2 ));
   field.setAttribute('y', 0);
   // Draw the course on an SVG group "courseFig"
   gridDotRadius = mag*gridDotRadiusRatio;
