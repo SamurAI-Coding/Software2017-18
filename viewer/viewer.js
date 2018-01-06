@@ -178,7 +178,7 @@ function drawPlayer(p) {
     player.body.style.fill = failedFill;
     if (play) collisionSound.play();
     var coords = document.getElementById('position'+p);
-    coords.innerHTML = 'Goal@'+raceLog['time'+p]+'(failed at '+step+')';
+    coords.innerHTML = 'Goal@'+raceLog['time'+p]+'(failed at '+last.step+')';
     player.icon.setAttribute('display', 'block');
     return;
   }
