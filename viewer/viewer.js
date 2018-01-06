@@ -178,7 +178,7 @@ function drawPlayer(p) {
     player.body.style.fill = failedFill;
     if (play) collisionSound.play();
     var coords = document.getElementById('position'+p);
-    coords.innerHTML = '(' + (px) + ',' + (py) + ')';
+    coords.innerHTML = 'Goal@'+raceLog['time'+p]+'(failed at '+step+')';
     player.icon.setAttribute('display', 'block');
     return;
   }
@@ -201,10 +201,14 @@ function drawPlayer(p) {
     player.body.style.fill = ok ? playerFill[player.id] : collisionFill;
     if (!ok) collisionSound.play();
     var coords = document.getElementById('position'+p);
-    if (py+vy >= course.length) {
+    if (py+vy >= course.length && ok) {
       coords.innerHTML = 'Goal@'+raceLog['time'+p];
-    } else if (py < course.length) {
+    } else if (step + 1 >= course.stepLimit) {
+      coords.innerHTML = 'Goal@'+raceLog['time'+p]+'(step limit over)';
+    } else if (ok) {
       coords.innerHTML = '(' + (px+vx) + ',' + (py+vy) + ')';
+    } else {
+      coords.innerHTML = '<del>(' + (px+vx) + ',' + (py+vy) + ')</del>(' + px + ',' + py + ')';
     }
     player.icon.setAttribute('display', 'block');
   } else {
