@@ -136,7 +136,7 @@ Javascript を利用できるウェブブラウザーならすぐ実行できま
 宛にメールください。
 もちろん、
   https://github.com/SamurAI-Coding/Software2017-18/pulls
-から修整を送っていただいても構いません。
+から修正を送っていただいても構いません。
 
 付録. boost のビルド・インストール
 
