@@ -14,7 +14,7 @@
 
 \title{{\gamename} Game Rule}
 \author{IPSJ Programming Contest Committee}
-\date{2017/12/26}
+\date{2018/01/07}
 
 \begin{document}
 \maketitle
@@ -220,7 +220,7 @@ At initiation, an AI receives the following input items in this order.
 A newline is put at the end of each item. Multiple integers within one item (line) are separated by {\bf one space character}.
 \begin{description}
 \item[Remaining Time ($t_\mathrm{given}$)] The remaining time usable in this race in
-  microseconds as an integer.
+  milliseconds as an integer.
 \item[Step Limit ($s_\mathrm{max}$)] The limit of number of steps to finish as an integer.
 \item[Course Size] The width ($w$) and length ($l$) of the race course as two integers.
 \item[Vision Limit ($d$)] The depth of the field of vision as an integer
@@ -268,7 +268,7 @@ A newline is put at the end of each item. Multiple integers included in one item
 \begin{description}
 \item[Step ($s$)] The current step number as a single integer.
 \item[Remaining Time ($t_\mathrm{left}$)] The remaining time usable in this race in
-  microseconds as an integer.
+  milliseconds as an integer.
 \item[Player's State] The $x$- and $y$-coordinates of the position ($x$ and $y$) and
   the $x$ and $y$ components the velocity $(v_\mathrm{x}$ and $v_\mathrm{y}$) of the player the AI is
   controlling, as four integers.
@@ -332,15 +332,15 @@ The black text is the input and the red one is the output.
 
 The first four lines, being the initial input, indicate that
 the remaining time, step limit, course width, course length and vision limit
-are $20,000\,\si{\micro\second}$, 100, 15, 100 and 8 respectively.
+are $20,000\,\si{\milli\second}$, 100, 15, 100 and 8 respectively.
 
 When the AI receives this input, it should output 0 and a newline.
 
 Then the AI receives the input of the first step.
 0 and 19981 in the first two lines show the current step number
 and the remaining time, respectively.
-The AI can see that it took $19\,\si{\micro\second}$ for its initiation and
-$19,981\,\si{\micro\second}$ remain.
+The AI can see that it took $19\,\si{\milli\second}$ for its initiation and
+$19,981\,\si{\milli\second}$ remain.
 
 The next two lines show the state of this and the opponent AI players.
 The current position $(x,y)$ and the velocity $(v_\mathrm{x},v_\mathrm{y})$ of this player are $(5,0)$ and
