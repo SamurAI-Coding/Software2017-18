@@ -83,6 +83,13 @@ function loadFile(evt) {
 	}
       }
       ++ylimit;
+      while (ylimit > course.obstacles.length) {
+        var zeros = Array(course.width);
+        for (var i = 0; i < course.width; ++i) {
+          zeros[i] = 0;
+        }
+        course.obstacles.push(zeros);
+      }
       gameLength = Math.max(raceLog.log0.length, raceLog.log1.length);
       for (var p = 0; p != 2; p++) {
 	var name = raceLog['name'+p];
