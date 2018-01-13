@@ -1,6 +1,6 @@
 {{define "viewer"}}
 		<script type="text/javascript" src="/public/js/viewer.js"></script>
-    <div style="height:10%; width: 100%">
+    <div>
       <button id="rewind" onclick="rewind(event)">&lt;&lt;</button>
       <button id="back" onclick="stepBackward(event)">&lt;</button>
       <button id="startStop" onclick="startStop(event)">Start</button>
@@ -26,8 +26,9 @@
 	  : <span id='position1'></span></font>
       </div>
     </div>
-    <div style="margin-top:10px">
-      <svg style="position:relative; left:0; width:100%"
+    <div style="margin-top:10px; position: relative; width: 100%;">
+			<span style="display: block; padding-top: 56.25%;"></span>
+      <svg style="position:absolute; top: 0; left: 0; width:100%; height: 100%"
 	   onresize="windowResized()" id="svg">
       </svg>
     </div>
@@ -36,12 +37,9 @@
     </script>
     <script type="text/javascript">
       $(function () {
-        var width = $('#svg').width();
-        $('#svg').css('height', (width * 3 / 4) + 'px').ready(function() {
-          var gameLogRaw = {{.Result.GameLog}};
-          var gameLogJSON = JSON.parse(gameLogRaw);
-          loadLog(gameLogJSON);
-        });
+        var gameLogRaw = {{.Result.GameLog}};
+        var gameLogJSON = JSON.parse(gameLogRaw);
+        loadLog(gameLogJSON);
       });
     </script>
 {{end}}
