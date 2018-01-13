@@ -53,12 +53,11 @@ bool RaceState::playOneStep(int c) {
   if (!goaled[0] && !goaled[1]) {
     // Check collision if both sides have not reached the goal yet
     // Going through the opponent's position is not allowed even with precedence
-    for (int i = 0; i < 2; ++i) {
-      if (res[i] == FUNNY) {
-        continue;
-      }
-      if (move[i].goesThru(players[1 - i].position)) {
-        res[i] = STOPPED;
+    if (res[0] != FUNNY && res[1] != FUNNY) {
+      for (int i = 0; i < 2; ++i) {
+        if (move[i].goesThru(players[1 - i].position)) {
+          res[i] = STOPPED;
+        }
       }
     }
     // Check intersection
