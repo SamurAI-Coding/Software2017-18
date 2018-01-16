@@ -31,4 +31,26 @@ class LineSegment:
     def internal(self, q):
         return ccw(self.p0[0], self.p0[1], self.p1[0], self.p1[1], q[0], q[1]) == 0 and self.opposite(q)
 
+def test():
+    # found bug in case py3_sample.py vs p3_sample.py on course08.smrjky at commit: 2c69ebe
+    assert     LineSegment([13, 80], [14, 81]).intersects(LineSegment([13, 81], [14, 80]))
+    assert     LineSegment([11, 68], [ 9, 70]).intersects(LineSegment([ 9, 69], [10, 70]))
+    # on straight line
+    assert     LineSegment([ 0,  0], [ 6,  9]).internal([2, 3])
+    assert     LineSegment([ 0,  0], [ 6,  9]).internal([4, 6])
+    assert not LineSegment([ 0,  0], [ 6,  9]).internal([8, 12])
+    assert not LineSegment([ 0,  0], [ 6,  9]).internal([-2, -3])
+    assert     LineSegment([ 0,  0], [ 3,  0]).internal([1, 0])
+    assert     LineSegment([ 0,  0], [ 3,  0]).internal([2, 0])
+    assert not LineSegment([ 0,  0], [ 3,  0]).internal([4, 0])
+    assert not LineSegment([ 0,  0], [ 3,  0]).internal([-1, 0])
+    assert     LineSegment([ 0,  0], [ 0,  3]).internal([0, 1])
+    assert     LineSegment([ 0,  0], [ 0,  3]).internal([0, 2])
+    assert not LineSegment([ 0,  0], [ 0,  3]).internal([0, 4])
+    assert not LineSegment([ 0,  0], [ 0,  3]).internal([0, -1])
+
+    print("Test: Success!")
+
+if __name__ == '__main__':
+    test()
 
