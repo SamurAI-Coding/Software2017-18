@@ -99,13 +99,17 @@ Logger::Logger(std::unique_ptr<std::istream> input, std::shared_ptr<std::ostream
 
 Logger::~Logger() {
   mutex->unlock();
-  future.wait_for(std::chrono::milliseconds(100));
-  thread.join();
+  std::future_status result = future.wait_for(std::chrono::milliseconds(500));
+  if (result == std::future_status::timeout) {
+    thread.detach();
+  } else {
+    thread.join();
+  }
 }
 
 Player::Player(string command, const RaceCourse &course, int xpos,
          string name, const Option &opt):
-  name(name), position(Point(xpos, 0)), velocity(0, 0),
+  group(), name(name), position(Point(xpos, 0)), velocity(0, 0),
   timeLeft(course.thinkTime), status(Status::VALID),
   option(opt) {
   if (command.length() == 0) {
@@ -123,7 +127,8 @@ Player::Player(string command, const RaceCourse &course, int xpos,
     boost::process::std_err > *stderrFromAI,
     boost::process::std_in < *toAI,
     env,
-    error_code_child
+    error_code_child,
+    group
   ));
   if (option.stderrLogStream) {
     *option.stderrLogStream << "[system] Try : hand shake" << endl;
@@ -144,7 +149,6 @@ Player::Player(string command, const RaceCourse &course, int xpos,
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
   auto timeUsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   timeLeft -= timeUsed;
-  thread.join();
   stderrLogger->mutex->lock();
   if (option.stderrLogStream) {
     *option.stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
@@ -160,8 +164,10 @@ Player::Player(string command, const RaceCourse &course, int xpos,
     if (option.stderrLogStream) {
       *option.stderrLogStream << "your AI : \"" << name << "\" has been timeouted" << std::endl;
     }
+    thread.detach();
     return;
   }
+  thread.join();
   auto ret = future.get();
   fromAI = std::move(ret.first);
   auto ans = ret.second.first;
@@ -274,7 +280,6 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
   auto timeUsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   timeLeft -= timeUsed;
-  thread.join();
   stderrLogger->mutex->lock();
   if (option.stderrLogStream) {
     *option.stderrLogStream << "[system] spend time: " << timeUsed << ", remain: " << timeLeft << endl;
@@ -290,8 +295,10 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
     if (option.stderrLogStream) {
       *option.stderrLogStream << "[system] your AI : \"" << name << "\" has been timeouted" << std::endl;
     }
+    thread.detach();
     return IntVec();
   }
+  thread.join();
   auto ret = future.get();
   fromAI = std::move(ret.first);
   for (const auto& line : ret.second.second) {
@@ -329,7 +336,12 @@ IntVec Player::play(int c, Player &op, RaceCourse &course) {
 }
 
 void Player::terminate() {
-  if (child)
-    child->terminate();
+  std::error_code ec;
+  group.terminate(ec);
+  if (option.stderrLogStream) {
+    *option.stderrLogStream << "[system] terminate your AI : \"" << name << "\"" << std::endl;
+    *option.stderrLogStream << "[system] \terror code : " << ec.value() << std::endl;
+    *option.stderrLogStream << "[system] \tmessage : \"" << ec.message() << std::endl;
+  }
 }
 

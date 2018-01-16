@@ -33,9 +33,10 @@ public:
 };
 
 struct Player {
+  boost::process::group group;
+  std::unique_ptr<boost::process::child> child;
   std::unique_ptr<boost::process::opstream> toAI;
   std::unique_ptr<boost::process::ipstream> fromAI;
-  std::unique_ptr<boost::process::child> child;
   string name;
   Point position;
   IntVec velocity;
