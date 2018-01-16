@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 from builtins import input
 import numpy as np
@@ -6,43 +6,7 @@ import sys
 import itertools
 import math
 
-
-class Map:
-    def __init__(self, width, height, default=0, out_of_bound=1):
-        self.w = width
-        self.h = height
-        self.m = [[0] * width]
-        self.maxy = 0
-        self.dv = default
-        self.ob = out_of_bound
-
-    def setline(self, y, l):
-        if y < 0:
-            return
-        while len(self.m) <= y:
-            self.m.append([self.dv] * self.w)
-        self.m[y] = l
-        self.maxy = max(self.maxy, y)
-
-    def getXY(self, x, y):
-        if x < 0 or x >= self.w or y < 0 or y > self.maxy:
-            return self.ob
-        return self.m[y][x]
-
-    def getP(self, p):
-        return self.getXY(p[0], p[1])
-
-    def setXY(self, x, y, v):
-        if x < 0 or x >= self.w or y < 0:
-            return self.ob
-        while self.maxy < y:
-            self.maxy += 1
-            self.m.append([self.dv] * self.w)
-        self.m[y][x] = v
-
-    def __str__(self):
-        return str(self.m)
-
+from py3_map import Map
 
 def make_cost_map(m, miny):
     cost_m = Map(m.w, m.h, 1000, 1000)
@@ -76,46 +40,10 @@ def readline():
     print(str(x), file=sys.stderr)
     return x
 
-
-def has_collision(p, next_p, m):
-    if m.getP(p) > 0 or m.getP(next_p) > 0:
-        return True
-    dp = next_p - p
-    xlen, ylen = abs(dp[0]), abs(dp[1])
-    dx, dy = np.sign(dp[0]), np.sign(dp[1])
-    for i in range(1, xlen + 1, 1):
-        x = int(p[0] + dx * i)
-        y = p[1] + (ylen * dy * i) / xlen
-        y0 = int(math.floor(y))
-        y1 = int(math.ceil(y))
-        if m.getXY(x, y0) > 0:
-            for k in range(-1, 2, 1):
-                if m.getXY(x + k, y1) > 0:
-                    return True
-        if m.getXY(x, y1) > 0:
-            for k in range(-1, 2, 1):
-                if m.getXY(x + k, y0) > 0:
-                    return True
-    for i in range(1, ylen + 1, 1):
-        y = int(p[1] + dy * i)
-        x = p[0] + (xlen * dx * i) / ylen
-        x0 = int(math.floor(x))
-        x1 = int(math.ceil(x))
-        if m.getXY(x0, y) > 0:
-            for k in range(-1, 2, 1):
-                if m.getXY(x1, y + k) > 0:
-                    return True
-        if m.getXY(x1, y) > 0:
-            for k in range(-1, 2, 1):
-                if m.getXY(x0, y + k) > 0:
-                    return True
-    return False
-
-
 def next_state(p, ac, m):
     next_v = p[1] + ac
     next_p = p[0] + next_v
-    if has_collision(p[0], next_p, m):
+    if m.has_collision(p[0], next_p):
         return (p[0], next_v)
     return (next_p, next_v)
 
