@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper, margin=20mm]{geometry}
+
+\title{SamurAI Coding 2017-18 Qualifying Round Rules}
+\author{IPSJ Programming Context Committee}
+\date{2018/01/09}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  This document describes the system of the qualifying round and the
+  advancement criteria for SamurAI Coding 2017--2018 contest.
+
+  The rules described here are provisional and subject to change.
+\end{abstract}
+
+\section{Preliminary Round System}
+
+The qualifying round is conducted as a round-robin tournament, in
+which all the participating teams play one game (two races exchanging
+the start positions) against all the other teams, as long as the
+number of participating teams allows it.  If the number of teams is
+too many for a single round-robin tournament, the qualification round
+will be organized with two rounds.
+
+In a two-round qualifier, participating teams are divided into several
+groups for the first round.  A round-robin tournament is conducted in
+each of the groups.  Around 30 teams with higher ranks in the
+first-round groups are advanced to the final qualifier, which is
+conducted as a round-robin tournament again.
+
+Due to the limited time and resource, the numbers of teams in each of
+the first-round qualifier are restricted to at most around 30.  The
+number of teams for the first-round groups are averaged as far as
+possible.  The same number of teams are advanced to the final
+qualifier from each group.
+
+Below is an example of the organization of the qualifying round with
+different number of participating teams.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{r|rrrr|rr}
+      \multicolumn{1}{c|}{Total number}&\multicolumn{4}{c|}{First Round}&\multicolumn{2}{c}{Final Qualifier}\\
+      of teams&groups&teams&advanced&games&teams&games\\
+      \hline
+      100&4&26&8&1300&32&496\\
+      150&10&16&3&1200&30&435\\
+      200&15&14&2&1365&30&435\\
+      300&30&10&1&1350&30&435\\
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\section{Round-Robin Tournaments}
+A round-robin tournament with $n$ teams consists of $n-1$ stages, each
+with different opponents.  When the number of teams in the tournament
+is odd, a player provided by the organizer is added to make it even,
+making each of the team play against all the other teams.
+
+All the games in each stage use the same race course, and different
+courses are used in different stages.
+
+The ranks of a round-robin tournaments are decided according to the
+following criteria, in this order.
+\begin{enumerate}
+\item
+  Total points.  In each stage, game winners are given two points and
+  losers are given no points.  When the game is drawn, both will be
+  given one point.
+\item
+  Total time.  The total of the goal time of all the races of all the
+  stages.  The goal time is defined in the game rules.
+\end{enumerate}
+When two or more teams are ranked the same with the above criteria,
+ranks are decided by drawing lots.
+
+\section{Race Course}
+Race courses used in the qualifying round satisfy the following.
+\begin{itemize}
+\item The course length is between 50 and 100, inclusive.
+\item The course width is between 2 and 20, inclusive.
+\item The vision limit is greater than or equal to 5.
+\item The initial remaining time is 200ms times the step limit plus 1000ms.
+\end{itemize}
+
+\section{Advancement to the World Finals}
+Twelve or more higher-ranked teams in the qualification round (in the
+final qualifier, when the qualification is organized with two rounds).
+
+At most four teams are selected in addition, considering regional
+diversity, results in the qualifier round, etc., and sixteen teams in
+total are advanced to the world finals.
+
+\begin{flushright}
+以上
+\end{flushright}
+
+\end{document}
